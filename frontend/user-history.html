@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>User Complaint History</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body class="bg-gray-100 min-h-screen p-6">
+  <div class="max-w-4xl mx-auto">
+    <div class="flex justify-between items-center mb-6">
+      <h2 class="text-2xl font-bold">
+        <i class="fa-solid fa-clock-rotate-left mr-2"></i>Complaint History
+      </h2>
+      <div class="space-x-2">
+        <button onclick="clickSound.play(); window.location.href='user.html'" class="action-btn btn-blue">
+          <i class="fa-solid fa-arrow-left mr-1"></i>Back
+        </button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="font-semibold">History List</h3>
+        <select id="historyFilter" onchange="renderHistoryComplaints()" class="border px-3 py-1 rounded bg-white">
+          <option value="All">Show All</option>
+          <option value="Pending">Pending</option>
+          <option value="Resolved">Resolved</option>
+          <option value="Reopened">Reopened</option>
+        </select>
+      </div>
+
+      <ul id="historyComplaints" class="space-y-2"></ul>
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <script>
+    const token = localStorage.getItem("token");
+    if (!token) window.location.href = "login.html";
+
+    const clickSound = new Audio("sounds/click.mp3");
+
+    let allUserComplaints = [];
+
+    function formatTime(dateString) {
+      const date = new Date(dateString);
+      return date.toLocaleString("en-IN", {
+        hour: "2-digit",
+        minute: "2-digit",
+        day: "2-digit",
+        month: "short"
+      });
+    }
+
+    function createHistoryItem(c) {
+      const li = document.createElement("li");
+      li.className = "complaint-entry";
+      li.innerHTML = `
+        <div class="flex justify-between items-center">
+          <span class="font-medium">${c.title}</span>
+          <span class="text-xs text-gray-500">${formatTime(c.createdAt)}</span>
+        </div>
+        <p class="text-sm text-gray-700">${c.category}</p>
+        <span class="status-tag mt-1 ${
+          c.status === "Resolved" ? "status-resolved" : c.status === "Pending" ? "status-pending" : "status-inprogress"
+        }">${c.status}</span>
+        ${c.status === "Resolved" && c.feedback ? `<p class="text-sm mt-1 text-green-700">⭐ ${c.feedback.rating}/5 - ${c.feedback.comment || "No comment"}</p>` : ""}
+      `;
+      return li;
+    }
+
+    function renderHistoryComplaints() {
+      const historyList = document.getElementById("historyComplaints");
+      const filter = document.getElementById("historyFilter").value;
+
+      let historyItems = [...allUserComplaints];
+      if (filter === "Pending") historyItems = historyItems.filter(c => c.status === "Pending");
+      else if (filter === "Resolved") historyItems = historyItems.filter(c => c.status === "Resolved");
+      else if (filter === "Reopened") historyItems = historyItems.filter(c => c.status === "Reopened" || c.status === "Pending");
+
+      historyItems.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+      historyList.innerHTML = "";
+      historyItems.forEach(c => {
+        historyList.appendChild(createHistoryItem(c));
+      });
+    }
+
+    async function loadHistory() {
+      const res = await fetch("http://localhost:5000/api/complaints/my", {
+        headers: { Authorization: "Bearer " + token }
+      });
+      allUserComplaints = await res.json();
+      renderHistoryComplaints();
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById("toast");
+      toast.innerText = msg;
+      toast.classList.add("visible");
+      setTimeout(() => toast.classList.remove("visible"), 3000);
+    }
+
+    loadHistory();
+  </script>
+</body>
+</html>

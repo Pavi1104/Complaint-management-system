@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Login</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gradient-to-r from-indigo-500 to-purple-600 min-h-screen flex items-center justify-center">
+
+  <div class="bg-white p-8 rounded-xl shadow-xl w-full max-w-sm">
+    <h2 class="text-2xl font-bold text-center mb-6 text-gray-800">
+      Complaint System
+    </h2>
+
+    <input id="email" type="email" placeholder="Email"
+      class="w-full mb-4 p-3 border rounded focus:ring-2 focus:ring-indigo-500">
+
+    <input id="password" type="password" placeholder="Password"
+      class="w-full mb-4 p-3 border rounded focus:ring-2 focus:ring-indigo-500">
+
+    <button onclick="clickSound.play(); login()"
+      class="w-full bg-indigo-600 text-white py-3 rounded hover:bg-indigo-700">
+      Login
+    </button>
+    <p class="text-center text-sm mt-4 text-gray-500">
+  New user?
+  <span class="text-blue-600 cursor-pointer"
+        onclick="window.location.href='register.html'">
+    Register
+  </span>
+</p>
+
+
+    <p onclick="showForgot()" class="text-blue-600 cursor-pointer mt-3">
+      Forgot password?
+    </p>
+    <p class="text-center text-sm mt-4 text-gray-500"> Secure Login </p>
+  </div>
+
+<script>
+const clickSound = new Audio("sounds/click.mp3");
+const successSound = new Audio("sounds/success.mp3");
+
+/* 🔔 SIMPLE TOAST */
+function showToast(msg) {
+  alert(msg);
+}
+
+/* 🔐 LOGIN */
+async function login() {
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value.trim();
+
+  if (!email || !password) {
+    showToast("Fill all fields");
+    return;
+  }
+
+  const res = await fetch("http://localhost:5000/api/auth/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password })
+  });
+
+  const data = await res.json();
+
+  if (res.ok) {
+    localStorage.setItem("token", data.token);
+    localStorage.setItem("role", data.role);
+setTimeout(() => {
+  window.location.href = data.role === "admin" ? "admin.html" : "user.html";
+}, 400);
+
+  } else {
+    showToast(data.message);
+  }
+}
+
+/* 🔑 FORGOT PASSWORD */
+function showForgot() {
+  const email = document.getElementById("email").value.trim();
+  if (!email) {
+    showToast("Enter email first");
+    return;
+  }
+  sendOTP(email);
+}
+
+/* 📩 SEND OTP */
+async function sendOTP(email) {
+  await fetch("http://localhost:5000/api/auth/forgot-password", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email })
+  });
+
+  successSound.play();
+  showToast("OTP sent to your email");
+  window.location.href = "reset-password.html"; // ✅ correct
+}
+</script>
+
+</body>
+</html>
+
+
+
+
+  

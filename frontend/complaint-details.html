@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Complaint Details</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 min-h-screen p-6">
+<div class="max-w-xl mx-auto bg-white p-6 rounded shadow">
+
+  <h2 class="text-xl font-bold mb-4">Complaint Details</h2>
+
+  <div id="details"></div>
+
+  <button onclick="clickSound.play(); window.history.back()"
+    class="mt-4 bg-gray-500 text-white px-4 py-2 rounded">
+    Back
+  </button>
+</div>
+
+<script>
+const token = localStorage.getItem("token");
+if (!token) window.location.href = "login.html";
+
+const clickSound = new Audio("sounds/click.mp3");
+
+const params = new URLSearchParams(window.location.search);
+const id = params.get("id");
+
+function formatTime(dateString) {
+  const d = new Date(dateString);
+  return d.toLocaleString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+}
+
+async function loadDetails() {
+  const res = await fetch(`http://localhost:5000/api/complaints/${id}`, {
+    headers: { Authorization: "Bearer " + token }
+  });
+
+  const c = await res.json();
+
+  document.getElementById("details").innerHTML = `
+  <p><b>Flat:</b> ${c.block}</p>
+<p><b>Name:</b> ${c.residentName}</p>
+<p><b>Phone:</b> ${c.phone}</p>
+    <p><b>Title:</b> ${c.title}</p>
+    <p><b>Category:</b> ${c.category}</p>
+    <p><b>Description:</b> ${c.description}</p>
+    <p><b>Status:</b> ${c.status}</p>
+    <p class="text-sm text-gray-500">
+      Raised: ${formatTime(c.createdAt)}
+    </p>
+    ${
+      c.status === "Resolved"
+        ? `<p class="text-sm text-green-600">
+            Resolved: ${formatTime(c.updatedAt)}
+           </p>`
+        : ""
+    }
+  `;
+}
+
+loadDetails();
+</script>
+
+</body>
+</html>

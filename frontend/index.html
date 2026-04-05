@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Complaint Management System</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+
+body{
+background: linear-gradient(-45deg,#6366f1,#9333ea,#ec4899,#22c55e);
+background-size:400% 400%;
+animation: gradient 12s ease infinite;
+}
+
+@keyframes gradient{
+0%{background-position:0% 50%}
+50%{background-position:100% 50%}
+100%{background-position:0% 50%}
+}
+
+.card:hover{
+transform:translateY(-8px);
+transition:0.3s;
+}
+
+@media (max-width: 767px) {
+  #menu:not(.hidden) {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1rem;
+    background: rgba(0,0,0,0.6);
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    z-index: 10;
+  }
+}
+
+</style>
+
+</head>
+
+<body class="text-white">
+
+<!-- NAVBAR -->
+
+<nav class="bg-black/40 p-4 flex justify-between items-center relative">
+
+<h1 class="text-xl font-bold flex items-center gap-2">
+<i class="fa-solid fa-circle-exclamation"></i>
+Complaint Portal
+</h1>
+
+<button onclick="clickSound.play(); toggleMenu()" class="md:hidden">
+<i class="fa-solid fa-bars"></i>
+</button>
+
+<ul id="menu" class="hidden md:flex gap-6 items-center">
+
+<li><a href="#">Home</a></li>
+<li><a href="#about">About</a></li>
+<li><a href="#contact">Contact</a></li>
+
+<li>
+<button onclick="clickSound.play(); toggleTheme()" class="px-3 py-1 bg-gray-700 rounded">
+<i class="fa-solid fa-moon"></i>
+</button>
+</li>
+
+<li>
+<button onclick="clickSound.play(); showLoginModal()" class="bg-indigo-600 px-4 py-2 rounded">Login</button>
+</li>
+
+<li>
+<a href="register.html" class="bg-green-500 px-4 py-2 rounded">Register</a>
+</li>
+
+</ul>
+
+</nav>
+
+<!-- HERO -->
+
+<section class="text-center py-32">
+
+<h1 class="text-3xl md:text-5xl font-bold mb-6">
+Complaint Management System
+</h1>
+
+<p class="mb-8 text-lg">
+Submit complaints and track their resolution easily.
+</p>
+
+<div class="flex flex-col md:flex-row justify-center gap-4">
+<a href="register.html" class="bg-yellow-400 text-black px-6 py-3 rounded hover:scale-110 transition">
+Get Started
+</a>
+
+<button onclick="clickSound.play(); showLoginModal()" class="bg-white text-black px-6 py-3 rounded hover:scale-110 transition">
+Login
+</button>
+</div>
+
+</section>
+
+<!-- STATS -->
+
+<section class="bg-black/40 py-16">
+
+<div class="max-w-5xl mx-auto grid md:grid-cols-3 text-center gap-6">
+
+<div>
+<h2 id="stat1" class="text-3xl md:text-4xl font-bold">0</h2>
+<p>Complaints Submitted</p>
+</div>
+
+<div>
+<h2 id="stat2" class="text-3xl md:text-4xl font-bold">0</h2>
+<p>Complaints Resolved</p>
+</div>
+
+<div>
+<h2 id="stat3" class="text-3xl md:text-4xl font-bold">0</h2>
+<p>Active Users</p>
+</div>
+
+</div>
+
+</section>
+
+<!-- ABOUT -->
+
+<section id="about" class="py-20 text-center">
+
+<h2 class="text-2xl md:text-3xl font-bold mb-10">Why Use Our System</h2>
+
+<div class="max-w-6xl mx-auto grid md:grid-cols-3 gap-6">
+
+<div class="card bg-white text-black p-6 rounded shadow">
+<i class="fa-solid fa-bolt text-3xl text-indigo-600 mb-3"></i>
+<h3 class="font-bold">Fast Complaint Handling</h3>
+<p>Submit complaints instantly.</p>
+</div>
+
+<div class="card bg-white text-black p-6 rounded shadow">
+<i class="fa-solid fa-chart-line text-3xl text-green-600 mb-3"></i>
+<h3 class="font-bold">Real Time Tracking</h3>
+<p>Track complaint progress easily.</p>
+</div>
+
+<div class="card bg-white text-black p-6 rounded shadow">
+<i class="fa-solid fa-star text-3xl text-yellow-500 mb-3"></i>
+<h3 class="font-bold">Feedback System</h3>
+<p>Users rate service after resolution.</p>
+</div>
+
+</div>
+
+</section>
+
+<!-- CONTACT -->
+
+<section id="contact" class="bg-black/40 py-16 text-center">
+
+<h2 class="text-2xl md:text-3xl font-bold mb-6">Contact</h2>
+
+<p>Email: support@complaintportal.com</p>
+<p>Phone: +91 9876543210</p>
+
+</section>
+
+<footer class="text-center p-4">
+© 2026 Complaint Portal
+</footer>
+
+<!-- Login Selection Modal -->
+<div id="loginModal" class="fixed inset-0 bg-black bg-opacity-60 hidden items-center justify-center z-50">
+  <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full mx-4 relative">
+    <button onclick="clickSound.play(); hideLoginModal()" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700">
+      <i class="fas fa-times fa-lg"></i>
+    </button>
+    <div class="text-center mb-6">
+      <h2 class="text-3xl font-bold text-gray-900 mb-2">Login as</h2>
+      <p class="text-gray-600">Choose your access type before signing in.</p>
+    </div>
+    <div class="grid gap-4">
+      <button onclick="clickSound.play(); chooseLogin('user')" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-2xl font-semibold transition">
+        <i class="fas fa-user mr-2"></i> User
+      </button>
+      <button onclick="clickSound.play(); chooseLogin('admin')" class="w-full bg-purple-600 hover:bg-purple-700 text-white py-4 rounded-2xl font-semibold transition">
+        <i class="fas fa-user-shield mr-2"></i> Admin
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+
+const clickSound = new Audio("sounds/click.mp3");
+
+function toggleMenu(){
+document.getElementById("menu").classList.toggle("hidden")
+}
+
+function toggleTheme(){
+document.body.classList.toggle("bg-gray-900");
+document.body.classList.toggle("text-white");
+}
+
+function counter(id,target){
+let count=0
+let interval=setInterval(()=>{
+count+=10
+document.getElementById(id).innerText=count
+if(count>=target) clearInterval(interval)
+},30)
+}
+
+counter("stat1",1200)
+counter("stat2",980)
+counter("stat3",350)
+
+function showLoginModal() {
+  const modal = document.getElementById("loginModal");
+  modal.classList.remove("hidden");
+  modal.classList.add("flex");
+}
+
+function hideLoginModal() {
+  const modal = document.getElementById("loginModal");
+  modal.classList.add("hidden");
+  modal.classList.remove("flex");
+}
+
+function chooseLogin(role) {
+  hideLoginModal();
+  // Pass role to login page if needed for later behavior
+  window.location.href = `login.html?role=${role}`;
+}
+
+</script>
+
+</body>
+</html>

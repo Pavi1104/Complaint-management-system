@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>User Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- 🔴 NEW: Font Awesome Icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+.star {
+  color: gray;
+  font-size: 30px;
+}
+.star.active {
+  color: gold;
+}
+</style>
+
+</head>
+
+<body class="bg-gray-100 min-h-screen p-6">
+<div class="max-w-4xl mx-auto">
+  <div class="flex justify-between items-center mb-6">
+    <h2 class="text-2xl font-bold">
+  <i class="fa-solid fa-user mr-2"></i>User Dashboard
+</h2>
+
+    <div class="space-x-2">
+      <button onclick="window.location.href='user-history.html'" class="action-btn btn-purple">
+        <i class="fa-solid fa-clock-rotate-left mr-1"></i>History
+      </button>
+      <button onclick="clickSound.play(); logout()" class="action-btn btn-red">
+        <i class="fa-solid fa-right-from-bracket mr-1"></i>Logout
+      </button>
+    </div>
+  </div>
+
+<div class="card mb-6">
+ <h3 class="font-semibold mb-4">Add Complaint</h3>
+ <input id="block" placeholder="Block / Flat Number" class="w-full mb-3 p-2 border rounded">
+<input id="residentName" placeholder="Resident Name" class="w-full mb-3 p-2 border rounded">
+<input id="phone" placeholder="Phone Number" class="w-full mb-3 p-2 border rounded">
+
+<input id="title" placeholder="Title" class="w-full mb-3 p-2 border rounded">
+   <select id="category" onchange="checkOtherCategory()" class="w-full mb-3 p-2 border rounded">
+  <option value="">Select Category</option>
+  <option value="Electrical">Electrical ⚡</option>
+  <option value="Plumbing">Plumbing 🚿</option>
+  <option value="Lift">Lift 🛗</option>
+  <option value="Cleaning">Cleaning 🧹</option>
+  <option value="Security">Security 🚓</option>
+  <option value="Other">Other</option>
+</select>
+<select id="priority" class="w-full mb-3 p-2 border rounded">
+  <option value="Low">Low Priority</option>
+  <option value="Medium">Medium Priority</option>
+  <option value="High">High Priority 🚨</option>
+</select>
+
+<input id="otherCategory" placeholder="Enter category"
+class="w-full mb-3 p-2 border rounded hidden">
+    <textarea id="description" placeholder="Description" class="w-full mb-3 p-2 border rounded"></textarea>
+
+    <!-- Photo Upload Section -->
+    <div class="mb-4">
+      <label class="block text-sm font-medium text-gray-700 mb-2">Upload Photo (Optional)</label>
+      <div class="flex space-x-2">
+        <button type="button" onclick="clickSound.play(); openCamera()" class="flex-1 bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 transition duration-200 flex items-center justify-center">
+          <i class="fas fa-camera mr-2"></i>Take Photo
+        </button>
+        <button type="button" onclick="clickSound.play(); openGallery()" class="flex-1 bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition duration-200 flex items-center justify-center">
+          <i class="fas fa-images mr-2"></i>From Gallery
+        </button>
+      </div>
+      <input type="file" id="imageInput" accept="image/*" capture="environment" class="hidden">
+      <div id="imagePreview" class="mt-2 hidden">
+        <img id="previewImg" class="max-w-full h-32 object-cover rounded-lg border">
+        <button type="button" onclick="clickSound.play(); removeImage()" class="mt-1 text-red-500 text-sm hover:text-red-700">
+          <i class="fas fa-times mr-1"></i>Remove
+        </button>
+      </div>
+    </div>
+
+ <button onclick="successSound.play(); addComplaint()"
+  class="primary-btn btn-blue">
+  <i class="fa-solid fa-paper-plane mr-1"></i>Submit
+</button>
+
+  </div>
+ <div class="card">
+    <h3 class="font-semibold mb-4">Current Complaints</h3>
+    <ul id="complaints" class="space-y-2"></ul>
+  </div>
+</div>
+<div id="toast" class="toast"></div>
+
+<!-- Socket.IO client MUST be here -->
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+
+<script>
+  // 🔊 SOUND EFFECTS
+const clickSound = new Audio("sounds/click.mp3");
+const successSound = new Audio("sounds/success.mp3");
+
+const token = localStorage.getItem("token");
+if (!token) window.location.href = "login.html";
+
+let allUserComplaints = [];
+
+// 🔥 SOCKET.IO LIVE UPDATE
+const socket = io("http://localhost:5000");
+socket.on("complaintUpdated", loadComplaints);
+
+function createComplaintListItem(c, includeActions = true) {
+  const li = document.createElement("li");
+  li.className = "complaint-entry";
+  li.innerHTML = `
+    <div class="flex justify-between items-center">
+      <span class="font-medium">${c.title}</span>
+      <span class="text-xs text-gray-500">${formatTime(c.createdAt)}</span>
+    </div>
+
+    <p class="text-sm text-gray-700">${c.category}</p>
+    <span class="status-tag mt-1 ${
+      c.status === "Resolved" ? "status-resolved" : c.status === "Pending" ? "status-pending" : "status-inprogress"
+    }">
+      ${c.status}
+    </span>
+
+    ${c.status === "Resolved" && c.feedback ? `<p class="text-sm mt-1 text-green-700">⭐ ${c.feedback.rating}/5 - ${c.feedback.comment || "No comment"}</p>` : ""}
+
+    <div class="mt-2">
+      <button onclick="clickSound.play(); window.location.href='complaint-details.html?id=${c._id}'" class="action-btn btn-blue mr-2">Details</button>
+      ${includeActions ? `<button onclick="clickSound.play(); editComplaint('${c._id}')" class="action-btn btn-green mr-2">Edit</button>` : ""}
+      ${includeActions && c.status === "Resolved" && !c.feedback ? `<button onclick="clickSound.play(); openFeedback('${c._id}')" class="action-btn btn-purple mr-2">Feedback</button>` : ""}
+      ${includeActions && c.status === "Resolved" ? `<button onclick="clickSound.play(); reopenComplaint('${c._id}')" class="action-btn btn-red">Reopen</button>` : ""}
+    </div>
+  `;
+  return li;
+}
+
+function renderHistoryComplaints() {
+  const historyList = document.getElementById("historyComplaints");
+  const filter = document.getElementById("historyFilter").value;
+
+  let historyItems = [...allUserComplaints];
+  if (filter === "Pending") historyItems = historyItems.filter(c => c.status === "Pending");
+  else if (filter === "Resolved") historyItems = historyItems.filter(c => c.status === "Resolved");
+  else if (filter === "Reopened") historyItems = historyItems.filter(c => c.status === "Reopened" || c.status === "Pending");
+
+  historyItems.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+  historyList.innerHTML = "";
+  historyItems.forEach(c => {
+    const li = createComplaintListItem(c, false);
+    historyList.appendChild(li);
+  });
+}
+
+async function loadComplaints() {
+  const res = await fetch("http://localhost:5000/api/complaints/my", {
+    headers: { Authorization: "Bearer " + token }
+  });
+
+  const data = await res.json();
+  allUserComplaints = data.slice();
+
+  const list = document.getElementById("complaints");
+  list.innerHTML = "";
+
+  const currentComplaints = allUserComplaints
+    .slice()
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+  currentComplaints.forEach(c => {
+    const li = createComplaintListItem(c, true);
+    list.appendChild(li);
+  });
+}
+
+async function addComplaint() {
+  console.log("addComplaint called");
+  const block = document.getElementById("block").value.trim();
+  const residentName = document.getElementById("residentName").value.trim();
+  const phone = document.getElementById("phone").value.trim();
+  const title = document.getElementById("title").value.trim();
+  let category = document.getElementById("category").value;
+  const otherCategory = document.getElementById("otherCategory").value.trim();
+
+  if (!category && otherCategory) {
+    category = otherCategory;
+  } else if (category === "Other") {
+    category = otherCategory;
+  }
+
+  const priority = document.getElementById("priority").value;
+  const description = document.getElementById("description").value.trim();
+
+  console.log("Values:", {block, residentName, phone, title, category, priority, description});
+
+  if (!block) {
+    showToast("Block / Flat Number is required");
+    return;
+  }
+  if (!residentName) {
+    showToast("Resident Name is required");
+    return;
+  }
+  if (!phone) {
+    showToast("Phone Number is required");
+    return;
+  }
+  if (!title) {
+    showToast("Title is required");
+    return;
+  }
+  if (!category) {
+    showToast("Category is required");
+    return;
+  }
+  if (!description) {
+    showToast("Description is required");
+    return;
+  }
+
+  try {
+    console.log("Sending fetch");
+    const formData = new FormData();
+    formData.append('block', block);
+    formData.append('residentName', residentName);
+    formData.append('phone', phone);
+    formData.append('title', title);
+    formData.append('category', category);
+    formData.append('priority', priority);
+    formData.append('description', description);
+
+    const imageInput = document.getElementById("imageInput");
+    if (imageInput.files[0]) {
+      formData.append('image', imageInput.files[0]);
+    }
+
+    const res = await fetch("http://localhost:5000/api/complaints/add", {
+      method: "POST",
+      headers: {
+        Authorization: "Bearer " + token
+      },
+      body: formData
+    });
+
+    console.log("Response status:", res.status);
+    if (res.ok) {
+      showToast("Complaint added successfully");
+      loadComplaints();
+      // Clear the form
+      document.getElementById("block").value = "";
+      document.getElementById("residentName").value = "";
+      document.getElementById("phone").value = "";
+      document.getElementById("title").value = "";
+      document.getElementById("category").value = "";
+      document.getElementById("otherCategory").value = "";
+      document.getElementById("priority").value = "Low";
+      document.getElementById("description").value = "";
+      // Clear image
+      document.getElementById("imageInput").value = "";
+      document.getElementById("imagePreview").classList.add("hidden");
+    } else {
+      const responseText = await res.text();
+      console.log("Response text:", responseText);
+      let errorMessage = "Failed to add complaint";
+      try {
+        const errorData = JSON.parse(responseText);
+        errorMessage = errorData.message || errorMessage;
+      } catch (e) {
+        errorMessage = responseText || errorMessage;
+      }
+      console.log("Error:", errorMessage);
+      showToast("Error: " + errorMessage);
+    }
+  } catch (error) {
+    console.log("Network error:", error);
+    showToast("Network error: " + error.message);
+  }
+}
+
+let currentComplaintId = null;
+
+function openFeedback(id) {
+  currentComplaintId = id;
+  document.getElementById("feedbackModal").classList.add("show");
+}
+
+function submitFeedback() {
+  const stars = document.querySelectorAll(".star.active").length;
+  const comment = document.getElementById("feedbackComment").value;
+
+  fetch(`http://localhost:5000/api/complaints/feedback/${currentComplaintId}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + token
+    },
+    body: JSON.stringify({ rating: stars, comment })
+  }).then(() => {
+    showToast("Feedback submitted");
+    document.getElementById("feedbackModal").classList.remove("show");
+    loadComplaints();
+  });
+}
+
+function showToast(msg) {
+  const toast = document.getElementById("toast");
+  toast.innerText = msg;
+  toast.classList.add("visible");
+  setTimeout(() => toast.classList.remove("visible"), 3000);
+}
+
+function formatTime(dateString) {
+  const date = new Date(dateString);
+  return date.toLocaleString("en-IN", {
+    hour: "2-digit",
+    minute: "2-digit",
+    day: "2-digit",
+    month: "short"
+  });
+}
+
+function logout() {
+  localStorage.clear();
+  window.location.href = "login.html";
+}
+
+loadComplaints();
+document.addEventListener("DOMContentLoaded", function () {
+  document.querySelectorAll(".star").forEach(star => {
+    star.addEventListener("click", function () {
+      const value = this.getAttribute("data-value");
+      const stars = document.querySelectorAll(".star");
+
+      stars.forEach(s => s.classList.remove("active"));
+
+      for (let i = 0; i < value; i++) {
+        stars[i].classList.add("active");
+      }
+    });
+  });
+});
+function checkOtherCategory() {
+  const category = document.getElementById("category").value;
+  const otherInput = document.getElementById("otherCategory");
+
+  if (category === "Other") {
+    otherInput.classList.remove("hidden");
+  } else {
+    otherInput.classList.add("hidden");
+  }
+}
+function editComplaint(id) {
+  const block = prompt("Edit Flat Number:");
+  const residentName = prompt("Edit Name:");
+  const phone = prompt("Edit Phone:");
+  const title = prompt("Edit Title:");
+  const category = prompt("Edit Category:");
+  const description = prompt("Edit Description:");
+
+  fetch(`http://localhost:5000/api/complaints/edit/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + token
+    },
+    body: JSON.stringify({
+      block,
+      residentName,
+      phone,
+      title,
+      category,
+      description
+    })
+  }).then(() => {
+    showToast("Complaint updated");
+    loadComplaints();
+  });
+}
+
+function reopenComplaint(id) {
+  fetch(`http://localhost:5000/api/complaints/update/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + token
+    },
+    body: JSON.stringify({ status: "Reopened" })
+  }).then(() => {
+    showToast("Complaint reopened");
+    loadComplaints();
+  });
+}
+
+// Chatbot logic
+function toggleChatBot() {
+  const widget = document.getElementById("chatBotWidget");
+  const toggle = document.getElementById("chatToggleBtn");
+  if (!widget.style.display || widget.style.display === "none") {
+    widget.style.display = "block";
+    toggle.style.display = "none";
+  } else {
+    widget.style.display = "none";
+    toggle.style.display = "block";
+  }
+}
+
+function appendChatMessage(role, text) {
+  const chatMessages = document.getElementById("chatMessages");
+  const bubble = document.createElement("div");
+  bubble.className = role === "user" ? "text-right mb-2" : "text-left mb-2";
+  bubble.innerHTML = `<span class="inline-block px-3 py-2 rounded-xl ${role === "user" ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-800"}">${text}</span>`;
+  chatMessages.appendChild(bubble);
+  chatMessages.parentElement.scrollTop = chatMessages.parentElement.scrollHeight;
+}
+
+function checkOtherCategory() {
+  const category = document.getElementById("category").value;
+  const otherInput = document.getElementById("otherCategory");
+
+  if (category === "Other") {
+    otherInput.classList.remove("hidden");
+  } else {
+    otherInput.classList.add("hidden");
+  }
+}
+
+function editComplaint(id) {
+  const block = prompt("Edit Flat Number:");
+  const residentName = prompt("Edit Name:");
+  const phone = prompt("Edit Phone:");
+  const title = prompt("Edit Title:");
+  const category = prompt("Edit Category:");
+  const description = prompt("Edit Description:");
+
+  fetch(`http://localhost:5000/api/complaints/edit/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + token
+    },
+    body: JSON.stringify({
+      block,
+      residentName,
+      phone,
+      title,
+      category,
+      description
+    })
+  }).then(() => {
+    showToast("Complaint updated");
+    loadComplaints();
+  });
+}
+
+function reopenComplaint(id) {
+  fetch(`http://localhost:5000/api/complaints/update/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + token
+    },
+    body: JSON.stringify({ status: "Reopened" })
+  }).then(() => {
+    showToast("Complaint reopened");
+    loadComplaints();
+  });
+}
+
+// Chatbot logic
+function toggleChatBot() {
+  const widget = document.getElementById("chatBotWidget");
+  const toggle = document.getElementById("chatToggleBtn");
+  if (!widget.style.display || widget.style.display === "none") {
+    widget.style.display = "block";
+    toggle.style.display = "none";
+  } else {
+    widget.style.display = "none";
+    toggle.style.display = "block";
+  }
+}
+
+async function sendChat(message) {
+  const token = localStorage.getItem("token");
+  if (!token || !message) return;
+
+  appendChatMessage("user", message);
+  appendChatMessage("bot", "Processing...");
+  const botMessageEl = document.getElementById("chatMessages").lastChild;
+
+  try {
+    const resp = await fetch("http://localhost:5000/api/chatbot/complaint", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token
+      },
+      body: JSON.stringify({ message })
+    });
+    const data = await resp.json();
+    botMessageEl.remove();
+    if (data.result) {
+      appendChatMessage("bot", data.result);
+    } else {
+      appendChatMessage("bot", "Sorry, could not process that. Please try again.");
+    }
+  } catch (error) {
+    botMessageEl.remove();
+    appendChatMessage("bot", "Server error. Please try again.");
+    console.error(error);
+  }
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+  const inputEl = document.getElementById("chatInput");
+  if (!inputEl) return;
+
+  inputEl.addEventListener("keypress", function(event) {
+    if (event.key === "Enter") {
+      const message = inputEl.value.trim();
+      inputEl.value = "";
+      sendChat(message);
+    }
+  });
+});
+
+// Photo upload functions
+function openCamera() {
+  const input = document.getElementById("imageInput");
+  input.setAttribute("capture", "environment");
+  input.click();
+}
+
+function openGallery() {
+  const input = document.getElementById("imageInput");
+  input.removeAttribute("capture");
+  input.click();
+}
+
+function removeImage() {
+  document.getElementById("imageInput").value = "";
+  document.getElementById("imagePreview").classList.add("hidden");
+}
+
+// Handle image selection and preview
+document.getElementById("imageInput").addEventListener("change", function(e) {
+  const file = e.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      document.getElementById("previewImg").src = e.target.result;
+      document.getElementById("imagePreview").classList.remove("hidden");
+    };
+    reader.readAsDataURL(file);
+  }
+});
+
+</script>
+<div id="feedbackModal" class="modal-overlay">
+  <div class="modal-card">
+    <h3 class="text-lg font-semibold mb-3">Rate your experience</h3>
+
+    <div id="stars" class="text-2xl mb-3">
+      <span class="star cursor-pointer" data-value="1">★</span>
+      <span class="star cursor-pointer" data-value="2">★</span>
+      <span class="star cursor-pointer" data-value="3">★</span>
+      <span class="star cursor-pointer" data-value="4">★</span>
+      <span class="star cursor-pointer" data-value="5">★</span>
+    </div>
+
+    <textarea id="feedbackComment" placeholder="Write feedback"
+      class="w-full border p-2 rounded mb-3"></textarea>
+
+    <button onclick="clickSound.play(); submitFeedback()"
+      class="bg-indigo-600 text-white px-4 py-2 rounded">Submit</button>
+  </div>
+</div>
+
+<!-- Chatbot widget -->
+<div id="chatBotWidget" class="fixed bottom-5 right-5 w-80 z-50" style="display: none;">
+  <div class="bg-white border border-gray-300 rounded-xl shadow-lg overflow-hidden">
+    <div class="flex items-center justify-between bg-blue-600 text-white px-3 py-2">
+      <span class="font-semibold">Support Bot</span>
+      <button onclick="clickSound.play(); toggleChatBot()" class="text-white text-sm font-bold">✕</button>
+    </div>
+    <div id="chatContent" class="h-64 overflow-y-auto p-3 bg-gray-100 text-sm">
+      <div id="chatMessages"></div>
+    </div>
+    <div class="p-3 bg-white">
+      <input id="chatInput" type="text" placeholder="Describe your issue..." class="w-full p-2 border rounded mb-2" />
+      <button onclick="clickSound.play(); sendChat()" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition">
+        Send
+      </button>
+    </div>
+  </div>
+</div>
+
+<button id="chatToggleBtn" onclick="clickSound.play(); toggleChatBot()" class="fixed bottom-5 right-5 bg-blue-600 text-white rounded-full p-3 shadow-xl z-40">
+  💬
+</button>
+
+</body>
+</html>
