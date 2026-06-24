@@ -3,12 +3,12 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const http = require("http");
 const { Server } = require("socket.io");
-const multer = require("multer");
 const path = require("path");
 require("dotenv").config({ path: __dirname + '/.env' });
 
 const authRoutes = require("./routes/auth");
 const complaintRoutes = require("./routes/complaint");
+const chatbotRouter = require("./routes/chatbot");
 
 const app = express();
 
@@ -17,10 +17,12 @@ app.use(cors());
 app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+/* serve frontend static files */
+app.use(express.static(path.join(__dirname, '../frontend')));
+
 /* routes */
 app.use("/api/auth", authRoutes);
 app.use("/api/complaints", complaintRoutes);
-const chatbotRouter = require("./routes/chatbot");
 app.use("/api/chatbot", chatbotRouter);
 
 /* MongoDB */
@@ -29,12 +31,12 @@ mongoose.connect(mongoUrl)
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.log(err));
 
-/* test route */
-app.get("/", (req, res) => {
-  res.send("Server is running");
+/* fallback: serve frontend index for unknown routes */
+app.get("/{*path}", (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/index.html'));
 });
 
-/* 🔥 SOCKET.IO SETUP */
+/* SOCKET.IO SETUP */
 const server = http.createServer(app);
 
 const io = new Server(server, {
@@ -51,7 +53,7 @@ io.on("connection", (socket) => {
 app.set("io", io);
 
 /* start server */
-const PORT = 5000;
-server.listen(PORT, () => {
+const PORT = process.env.PORT || 5000;
+server.listen(PORT, "0.0.0.0", () => {
   console.log(`Server running on port ${PORT}`);
 });

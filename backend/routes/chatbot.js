@@ -107,7 +107,7 @@ router.post("/complaint", verifyToken, async (req, res) => {
 
       /* ================= CREATE COMPLAINT ================= */
 
-      const complaintResp = await fetch("http://localhost:5000/api/complaints/add", {
+      const complaintResp = await fetch(`http://localhost:${process.env.PORT || 5000}/api/complaints/add`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
