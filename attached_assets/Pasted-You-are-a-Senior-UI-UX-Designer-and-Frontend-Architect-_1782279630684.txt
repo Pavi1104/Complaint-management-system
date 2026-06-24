@@ -1,0 +1,329 @@
+You are a Senior UI/UX Designer and Frontend Architect.
+
+Your task is to completely redesign the UI of my Complaint Management System into a premium enterprise-grade product while preserving ALL existing functionality.
+
+CRITICAL RULES (MUST FOLLOW)
+
+1. DO NOT CHANGE ANY BACKEND CODE.
+2. DO NOT MODIFY API ENDPOINTS.
+3. DO NOT MODIFY DATABASE LOGIC.
+4. DO NOT MODIFY JWT AUTHENTICATION.
+5. DO NOT MODIFY SOCKET.IO.
+6. DO NOT MODIFY CHATBOT LOGIC.
+7. DO NOT MODIFY COMPLAINT SUBMISSION LOGIC.
+8. DO NOT MODIFY FEEDBACK LOGIC.
+9. DO NOT MODIFY ADMIN LOGIC.
+10. DO NOT MODIFY HISTORY LOGIC.
+11. DO NOT REMOVE ANY EXISTING INPUT IDs.
+12. DO NOT REMOVE ANY EXISTING BUTTON IDs.
+13. DO NOT REMOVE ANY EXISTING JAVASCRIPT FUNCTIONS.
+14. DO NOT CHANGE EVENT HANDLERS.
+15. KEEP ALL FORMS WORKING EXACTLY AS THEY DO NOW.
+
+ONLY IMPROVE:
+- Layout
+- Styling
+- Components
+- Responsiveness
+- Animations
+- Icons
+- Typography
+- Color System
+- User Experience
+
+==================================================
+
+DESIGN DIRECTION
+
+Create a professional enterprise complaint management platform similar to modern SaaS products.
+
+AVOID:
+❌ Glassmorphism
+❌ Neumorphism
+❌ Purple gradients
+❌ Pink gradients
+❌ Student project appearance
+❌ Cartoon style
+
+USE:
+
+Primary Color:
+#0F3D2E (Dark Emerald Green)
+
+Secondary:
+#D4A017 (Premium Gold)
+
+Background:
+#F8FAFC
+
+Text:
+#1E293B
+
+Cards:
+#FFFFFF
+
+Success:
+#16A34A
+
+Warning:
+#F59E0B
+
+Danger:
+#DC2626
+
+==================================================
+
+HOME PAGE
+
+Professional Sticky Navbar
+
+Left:
+- Premium Logo
+- Complaint Portal
+
+Center:
+- Home
+- Features
+- How It Works
+- Contact
+
+Right:
+- Dark Mode Toggle
+- Login Button
+- Register Button
+
+==================================================
+
+HERO SECTION
+
+Left Side:
+Headline:
+
+"Smart Complaint Management Platform"
+
+Subheading:
+
+Submit, track and resolve complaints efficiently with complete transparency and real-time updates.
+
+Buttons:
+- Get Started
+- Login
+
+Right Side:
+Professional complaint management dashboard illustration
+
+Full viewport hero section
+
+==================================================
+
+STATISTICS SECTION
+
+Display as premium cards:
+
+Complaints Submitted
+Complaints Resolved
+Active Users
+Resolution Rate
+
+With icons and hover effects
+
+==================================================
+
+FEATURES SECTION
+
+6 Premium Cards
+
+Fast Complaint Submission
+
+Real-Time Tracking
+
+Admin Dashboard
+
+Smart Support Chatbot
+
+Feedback & Ratings
+
+Complaint History
+
+==================================================
+
+HOW IT WORKS
+
+Step 1
+Submit Complaint
+
+Step 2
+Admin Reviews Complaint
+
+Step 3
+Issue Resolution
+
+Step 4
+User Feedback
+
+Timeline Design
+
+==================================================
+
+TRUST SECTION
+
+Add:
+
+Why Choose Our Platform?
+
+- Transparency
+- Fast Resolution
+- Secure Access
+- Real-Time Updates
+- User Satisfaction
+- Smart Complaint Routing
+
+==================================================
+
+TESTIMONIAL SECTION
+
+3 Premium Testimonial Cards
+
+==================================================
+
+CONTACT SECTION
+
+Professional layout
+
+Email
+Phone
+Location
+
+==================================================
+
+FOOTER
+
+4 Column Footer
+
+About
+Quick Links
+Support
+Contact
+
+Professional Social Icons
+
+==================================================
+
+USER DASHBOARD
+
+Transform current dashboard into:
+
+Modern Enterprise Dashboard
+
+Top Statistics Cards:
+- Total Complaints
+- Pending
+- In Progress
+- Resolved
+
+Modern Complaint Form Card
+
+Modern Complaint List Cards
+
+Better Status Badges
+
+Professional Buttons
+
+Premium Layout
+
+==================================================
+
+ADMIN DASHBOARD
+
+Modern Admin Panel
+
+Top KPI Cards
+
+Pending Complaints
+
+In Progress Complaints
+
+Resolved Complaints
+
+User Feedback Summary
+
+Search Bar
+
+Filter Controls
+
+Professional Tables
+
+==================================================
+
+CHATBOT
+
+KEEP ALL CHATBOT FUNCTIONALITY.
+
+ONLY REDESIGN UI:
+
+- Floating Support Widget
+- Modern Chat Bubbles
+- Typing Animation
+- Professional Header
+- Better Input Box
+
+==================================================
+
+COMPLAINT DETAILS PAGE
+
+Professional Timeline View
+
+Complaint Information Card
+
+Status Card
+
+Feedback Card
+
+==================================================
+
+HISTORY PAGE
+
+Professional Table Layout
+
+Filter Controls
+
+Search Function UI
+
+Export Button UI
+
+==================================================
+
+RESPONSIVENESS
+
+Desktop
+Tablet
+Mobile
+
+Must look premium on all devices.
+
+==================================================
+
+ANIMATIONS
+
+Smooth hover effects
+Smooth card transitions
+Fade-in sections
+Button hover effects
+
+Do not overuse animations.
+
+==================================================
+
+FINAL GOAL
+
+Make the project look like a real enterprise SaaS Complaint Management System that could be sold commercially.
+
+The UI should look professional enough for:
+- Final Year Project
+- Placement Portfolio
+- GitHub Portfolio
+- Project Demonstration
+- Resume Showcase
+
+IMPORTANT:
+Before making any change, analyze all existing HTML, CSS and JavaScript files and preserve 100% functionality. Improve appearance only.

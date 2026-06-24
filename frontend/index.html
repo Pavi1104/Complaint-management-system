@@ -1,228 +1,717 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Complaint Management System</title>
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ComplaintPortal — Smart Complaint Management</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-
-body{
-background: linear-gradient(-45deg,#6366f1,#9333ea,#ec4899,#22c55e);
-background-size:400% 400%;
-animation: gradient 12s ease infinite;
+:root {
+  --primary: #0F3D2E;
+  --primary-light: #1a5c45;
+  --secondary: #D4A017;
+  --bg: #F8FAFC;
+  --text: #1E293B;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Inter', sans-serif;
+  color: var(--text);
+  background: var(--bg);
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
 }
 
-@keyframes gradient{
-0%{background-position:0% 50%}
-50%{background-position:100% 50%}
-100%{background-position:0% 50%}
+/* NAVBAR */
+.navbar {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(15,61,46,0.97);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  padding: 0 2rem;
+  height: 68px;
+  display: flex; align-items: center; justify-content: space-between;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.15);
 }
-
-.card:hover{
-transform:translateY(-8px);
-transition:0.3s;
+.nav-logo { display: flex; align-items: center; gap: 0.6rem; color: #fff; text-decoration: none; }
+.nav-logo .logo-icon {
+  width: 36px; height: 36px; background: var(--secondary);
+  border-radius: 8px; display: flex; align-items: center; justify-content: center;
+  font-size: 16px; color: #1a1a1a; font-weight: 800; flex-shrink: 0;
 }
-
-@media (max-width: 767px) {
-  #menu:not(.hidden) {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    padding: 1rem;
-    background: rgba(0,0,0,0.6);
-    position: absolute;
-    top: 100%;
-    left: 0;
-    width: 100%;
-    z-index: 10;
-  }
+.nav-logo span { font-weight: 700; font-size: 1.05rem; letter-spacing: -0.01em; }
+.nav-logo small { display: block; font-size: 0.68rem; opacity: 0.6; font-weight: 400; letter-spacing: 0.05em; }
+.nav-links { display: flex; gap: 0.25rem; list-style: none; margin: 0; padding: 0; }
+.nav-links a {
+  color: rgba(255,255,255,0.75); text-decoration: none;
+  font-size: 0.88rem; font-weight: 500; padding: 0.4rem 0.8rem;
+  border-radius: 6px; transition: color 0.15s, background 0.15s;
 }
+.nav-links a:hover { color: #fff; background: rgba(255,255,255,0.1); }
+.nav-actions { display: flex; gap: 0.5rem; align-items: center; }
+.btn-outline-white {
+  border: 1.5px solid rgba(255,255,255,0.35); background: transparent;
+  color: #fff; padding: 0.45rem 1rem; border-radius: 8px;
+  font-size: 0.85rem; font-weight: 600; cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  font-family: 'Inter', sans-serif;
+}
+.btn-outline-white:hover { border-color: #fff; background: rgba(255,255,255,0.1); }
+.btn-gold-solid {
+  background: var(--secondary); color: #1a1a1a;
+  padding: 0.45rem 1.1rem; border-radius: 8px; border: none;
+  font-size: 0.85rem; font-weight: 700; cursor: pointer;
+  transition: filter 0.2s, transform 0.15s;
+  font-family: 'Inter', sans-serif;
+}
+.btn-gold-solid:hover { filter: brightness(1.08); transform: translateY(-1px); }
+.theme-btn {
+  background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+  color: rgba(255,255,255,0.8); width: 36px; height: 36px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: background 0.2s; flex-shrink: 0;
+}
+.theme-btn:hover { background: rgba(255,255,255,0.18); }
+.hamburger { display: none; background: none; border: none; color: #fff; font-size: 1.3rem; cursor: pointer; padding: 0.25rem; }
 
+/* HERO */
+.hero {
+  min-height: calc(100vh - 68px);
+  background: linear-gradient(135deg, var(--primary) 0%, #1a5c45 50%, #0a2a1f 100%);
+  display: flex; align-items: center;
+  padding: 4rem 2rem;
+  position: relative; overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") repeat;
+}
+.hero-container { max-width: 1140px; margin: 0 auto; width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; position: relative; z-index: 1; }
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  background: rgba(212,160,23,0.15); border: 1px solid rgba(212,160,23,0.3);
+  color: var(--secondary); font-size: 0.78rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.1em;
+  padding: 0.35rem 0.9rem; border-radius: 999px; margin-bottom: 1.25rem;
+}
+.hero h1 {
+  font-size: clamp(2rem, 4vw, 3.2rem); font-weight: 800;
+  color: #fff; line-height: 1.15; letter-spacing: -0.02em;
+  margin-bottom: 1.25rem;
+}
+.hero h1 span { color: var(--secondary); }
+.hero p { color: rgba(255,255,255,0.72); font-size: 1.05rem; line-height: 1.7; margin-bottom: 2rem; }
+.hero-actions { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+.btn-hero-primary {
+  background: var(--secondary); color: #1a1a1a;
+  padding: 0.85rem 1.75rem; border-radius: 10px; border: none;
+  font-size: 0.95rem; font-weight: 700; cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s; display: inline-flex; align-items: center; gap: 0.5rem;
+  font-family: 'Inter', sans-serif; text-decoration: none;
+}
+.btn-hero-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(212,160,23,0.4); }
+.btn-hero-outline {
+  background: rgba(255,255,255,0.08); color: #fff;
+  padding: 0.85rem 1.75rem; border-radius: 10px; border: 1.5px solid rgba(255,255,255,0.3);
+  font-size: 0.95rem; font-weight: 600; cursor: pointer;
+  transition: background 0.15s, border-color 0.15s; display: inline-flex; align-items: center; gap: 0.5rem;
+  font-family: 'Inter', sans-serif;
+}
+.btn-hero-outline:hover { background: rgba(255,255,255,0.14); border-color: rgba(255,255,255,0.55); }
+.hero-visual {
+  display: flex; align-items: center; justify-content: center;
+}
+.hero-dashboard {
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 20px; padding: 1.5rem; backdrop-filter: blur(12px);
+  width: 100%; max-width: 420px; box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+}
+.dash-mini-header {
+  display: flex; align-items: center; gap: 0.5rem;
+  border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.75rem; margin-bottom: 1rem;
+}
+.dash-dot { width: 8px; height: 8px; border-radius: 50%; }
+.dash-mini-stat {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; margin-bottom: 1rem;
+}
+.mini-stat-card {
+  background: rgba(255,255,255,0.08); border-radius: 10px; padding: 0.85rem;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+.mini-stat-card .num { font-size: 1.4rem; font-weight: 800; color: #fff; }
+.mini-stat-card .lbl { font-size: 0.7rem; color: rgba(255,255,255,0.5); margin-top: 0.15rem; }
+.mini-complaint-item {
+  display: flex; align-items: center; gap: 0.75rem;
+  background: rgba(255,255,255,0.06); border-radius: 8px;
+  padding: 0.65rem 0.85rem; margin-bottom: 0.5rem;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+.mini-complaint-item .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.mini-complaint-item .info { flex: 1; }
+.mini-complaint-item .title { font-size: 0.78rem; color: #fff; font-weight: 500; }
+.mini-complaint-item .sub { font-size: 0.68rem; color: rgba(255,255,255,0.45); }
+.mini-badge { font-size: 0.65rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 999px; }
+.badge-resolved { background: rgba(22,163,74,0.25); color: #4ADE80; }
+.badge-pending { background: rgba(245,158,11,0.25); color: #FCD34D; }
+.badge-progress { background: rgba(15,61,46,0.35); color: #86EFAC; }
+
+/* STATS */
+.stats-section {
+  background: var(--primary); padding: 5rem 2rem;
+}
+.stats-grid { max-width: 1140px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; }
+.stat-item {
+  text-align: center; padding: 2rem 1rem;
+  background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 16px; transition: background 0.2s;
+}
+.stat-item:hover { background: rgba(255,255,255,0.1); }
+.stat-item .icon { width: 52px; height: 52px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-size: 1.3rem; }
+.stat-item h3 { font-size: 2.4rem; font-weight: 800; color: #fff; line-height: 1; margin-bottom: 0.4rem; }
+.stat-item p { font-size: 0.88rem; color: rgba(255,255,255,0.6); }
+
+/* SECTION */
+.section { padding: 6rem 2rem; }
+.section-header { text-align: center; margin-bottom: 3.5rem; }
+.section-title { font-size: clamp(1.6rem, 3vw, 2.2rem); font-weight: 800; color: var(--text); letter-spacing: -0.02em; margin-bottom: 0.75rem; }
+.section-subtitle { color: #64748B; font-size: 1.05rem; max-width: 580px; margin: 0 auto; line-height: 1.6; }
+
+/* FEATURES */
+.features-grid { max-width: 1140px; margin: 0 auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+.feature-card {
+  background: #fff; border: 1px solid #E2E8F0; border-radius: 16px; padding: 2rem;
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+.feature-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(15,61,46,0.12); border-color: rgba(15,61,46,0.25); }
+.feature-icon { width: 52px; height: 52px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 1.2rem; font-size: 1.3rem; }
+.feature-card h3 { font-size: 1rem; font-weight: 700; color: var(--text); margin-bottom: 0.5rem; }
+.feature-card p { font-size: 0.88rem; color: #64748B; line-height: 1.6; }
+
+/* HOW IT WORKS */
+.how-section { background: linear-gradient(135deg, #F0FDF4, #F8FAFC); padding: 6rem 2rem; }
+.steps-timeline { max-width: 860px; margin: 0 auto; position: relative; }
+.steps-timeline::before {
+  content: ''; position: absolute; left: 28px; top: 0; bottom: 0; width: 2px;
+  background: linear-gradient(to bottom, var(--primary), var(--secondary));
+}
+.step-item { display: flex; gap: 2rem; margin-bottom: 2.5rem; position: relative; }
+.step-num {
+  width: 56px; height: 56px; border-radius: 50%; flex-shrink: 0;
+  background: var(--primary); color: #fff; display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 1.1rem; z-index: 1; box-shadow: 0 4px 16px rgba(15,61,46,0.3);
+}
+.step-content { background: #fff; border: 1px solid #E2E8F0; border-radius: 14px; padding: 1.5rem; flex: 1; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+.step-content h3 { font-size: 1rem; font-weight: 700; color: var(--text); margin-bottom: 0.4rem; }
+.step-content p { font-size: 0.88rem; color: #64748B; line-height: 1.6; }
+
+/* TRUST */
+.trust-grid { max-width: 1140px; margin: 0 auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
+.trust-card {
+  display: flex; gap: 1rem; align-items: flex-start;
+  background: #fff; border: 1px solid #E2E8F0; border-radius: 14px; padding: 1.4rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04); transition: transform 0.2s, box-shadow 0.2s;
+}
+.trust-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(15,61,46,0.1); }
+.trust-icon { width: 44px; height: 44px; border-radius: 10px; background: rgba(15,61,46,0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: var(--primary); font-size: 1.1rem; }
+.trust-card h4 { font-size: 0.92rem; font-weight: 700; color: var(--text); margin-bottom: 0.3rem; }
+.trust-card p { font-size: 0.82rem; color: #64748B; line-height: 1.5; }
+
+/* TESTIMONIALS */
+.testimonials-section { background: var(--primary); padding: 6rem 2rem; }
+.testimonials-grid { max-width: 1140px; margin: 0 auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+.testimonial-card {
+  background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 16px; padding: 1.75rem;
+  transition: background 0.2s, transform 0.2s;
+}
+.testimonial-card:hover { background: rgba(255,255,255,0.1); transform: translateY(-3px); }
+.testimonial-stars { color: var(--secondary); font-size: 0.85rem; margin-bottom: 1rem; letter-spacing: 0.05em; }
+.testimonial-card blockquote { font-size: 0.9rem; color: rgba(255,255,255,0.78); line-height: 1.7; margin-bottom: 1.25rem; font-style: italic; }
+.testimonial-author { display: flex; align-items: center; gap: 0.75rem; }
+.author-avatar { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.9rem; color: #1a1a1a; flex-shrink: 0; }
+.author-name { font-size: 0.88rem; font-weight: 700; color: #fff; }
+.author-role { font-size: 0.75rem; color: rgba(255,255,255,0.5); }
+
+/* CONTACT */
+.contact-section { padding: 6rem 2rem; }
+.contact-container { max-width: 900px; margin: 0 auto; }
+.contact-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+.contact-card {
+  background: #fff; border: 1px solid #E2E8F0; border-radius: 16px; padding: 2rem;
+  text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.contact-card:hover { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(15,61,46,0.12); }
+.contact-icon { width: 56px; height: 56px; background: rgba(15,61,46,0.08); border-radius: 14px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-size: 1.4rem; color: var(--primary); }
+.contact-card h4 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.5rem; }
+.contact-card p { font-size: 0.88rem; color: #64748B; }
+
+/* FOOTER */
+.footer { background: #0a1f16; padding: 4rem 2rem 2rem; }
+.footer-grid { max-width: 1140px; margin: 0 auto; display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: 3rem; margin-bottom: 3rem; }
+.footer-brand .logo { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem; }
+.footer-brand .logo .icon { width: 32px; height: 32px; background: var(--secondary); border-radius: 7px; display: flex; align-items: center; justify-content: center; color: #1a1a1a; font-weight: 800; font-size: 14px; }
+.footer-brand .logo span { font-size: 0.95rem; font-weight: 700; color: #fff; }
+.footer-brand p { font-size: 0.83rem; color: rgba(255,255,255,0.45); line-height: 1.6; }
+.footer-col h5 { font-size: 0.82rem; font-weight: 700; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 1rem; }
+.footer-col ul { list-style: none; padding: 0; }
+.footer-col ul li { margin-bottom: 0.5rem; }
+.footer-col ul li a { font-size: 0.85rem; color: rgba(255,255,255,0.55); text-decoration: none; transition: color 0.15s; }
+.footer-col ul li a:hover { color: var(--secondary); }
+.footer-bottom { max-width: 1140px; margin: 0 auto; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center; flex-wrap: gap; }
+.footer-bottom p { font-size: 0.82rem; color: rgba(255,255,255,0.35); }
+.social-links { display: flex; gap: 0.6rem; }
+.social-link { width: 34px; height: 34px; background: rgba(255,255,255,0.07); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.5); text-decoration: none; transition: background 0.15s, color 0.15s; font-size: 0.85rem; }
+.social-link:hover { background: var(--secondary); color: #1a1a1a; }
+
+/* LOGIN MODAL */
+.modal-bg {
+  position: fixed; inset: 0; background: rgba(15,23,42,0.6);
+  backdrop-filter: blur(4px); display: flex; align-items: center;
+  justify-content: center; z-index: 200; opacity: 0; pointer-events: none;
+  transition: opacity 0.25s;
+}
+.modal-bg.flex { opacity: 1; pointer-events: auto; }
+.modal-box {
+  background: #fff; border-radius: 20px; padding: 2.5rem;
+  width: min(440px, 94vw); box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  transform: translateY(20px); transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  position: relative;
+}
+.modal-bg.flex .modal-box { transform: translateY(0); }
+.modal-close { position: absolute; top: 1rem; right: 1rem; background: #F1F5F9; border: none; width: 32px; height: 32px; border-radius: 8px; cursor: pointer; color: #64748B; transition: background 0.15s; }
+.modal-close:hover { background: #E2E8F0; }
+
+/* MOBILE NAV */
+@media (max-width: 768px) {
+  .nav-links, .nav-actions { display: none !important; }
+  .hamburger { display: block !important; }
+  #menu.mobile-open { display: flex !important; flex-direction: column; align-items: flex-start; gap: 0.25rem; position: absolute; top: 68px; left: 0; right: 0; background: rgba(10,31,22,0.98); padding: 1rem 1.5rem 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.1); }
+  #menu.mobile-open .nav-links, #menu.mobile-open .nav-actions { display: flex !important; flex-direction: column; width: 100%; }
+  .hero-container { grid-template-columns: 1fr; text-align: center; }
+  .hero-visual { display: none; }
+  .hero-actions { justify-content: center; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .features-grid { grid-template-columns: 1fr; }
+  .trust-grid { grid-template-columns: 1fr; }
+  .testimonials-grid { grid-template-columns: 1fr; }
+  .contact-grid { grid-template-columns: 1fr; }
+  .footer-grid { grid-template-columns: 1fr 1fr; gap: 2rem; }
+  .steps-timeline::before { display: none; }
+}
+@media (max-width: 480px) {
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+  .footer-grid { grid-template-columns: 1fr; }
+}
 </style>
-
 </head>
+<body>
 
-<body class="text-white">
+<!-- ══════════════ NAVBAR ══════════════ -->
+<nav class="navbar">
+  <a class="nav-logo" href="#">
+    <div class="logo-icon">CP</div>
+    <div>
+      <span>ComplaintPortal</span>
+      <small>ENTERPRISE PLATFORM</small>
+    </div>
+  </a>
 
-<!-- NAVBAR -->
+  <button class="hamburger" onclick="toggleMenu()"><i class="fa-solid fa-bars"></i></button>
 
-<nav class="bg-black/40 p-4 flex justify-between items-center relative">
-
-<h1 class="text-xl font-bold flex items-center gap-2">
-<i class="fa-solid fa-circle-exclamation"></i>
-Complaint Portal
-</h1>
-
-<button onclick="clickSound.play(); toggleMenu()" class="md:hidden">
-<i class="fa-solid fa-bars"></i>
-</button>
-
-<ul id="menu" class="hidden md:flex gap-6 items-center">
-
-<li><a href="#">Home</a></li>
-<li><a href="#about">About</a></li>
-<li><a href="#contact">Contact</a></li>
-
-<li>
-<button onclick="clickSound.play(); toggleTheme()" class="px-3 py-1 bg-gray-700 rounded">
-<i class="fa-solid fa-moon"></i>
-</button>
-</li>
-
-<li>
-<button onclick="clickSound.play(); showLoginModal()" class="bg-indigo-600 px-4 py-2 rounded">Login</button>
-</li>
-
-<li>
-<a href="register.html" class="bg-green-500 px-4 py-2 rounded">Register</a>
-</li>
-
-</ul>
-
+  <div id="menu">
+    <ul class="nav-links">
+      <li><a href="#">Home</a></li>
+      <li><a href="#features">Features</a></li>
+      <li><a href="#how-it-works">How It Works</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <div class="nav-actions">
+      <button onclick="clickSound.play(); toggleTheme()" class="theme-btn" title="Toggle theme">
+        <i class="fa-solid fa-moon" style="font-size:0.85rem;"></i>
+      </button>
+      <button onclick="clickSound.play(); showLoginModal()" class="btn-outline-white">Login</button>
+      <a href="register.html" class="btn-gold-solid">Register</a>
+    </div>
+  </div>
 </nav>
 
-<!-- HERO -->
+<!-- ══════════════ HERO ══════════════ -->
+<section class="hero">
+  <div class="hero-container">
+    <div>
+      <div class="hero-badge">
+        <i class="fa-solid fa-shield-halved"></i> Enterprise-Grade Platform
+      </div>
+      <h1>Smart <span>Complaint</span> Management Platform</h1>
+      <p>Submit, track and resolve complaints efficiently with complete transparency and real-time updates. Built for modern organisations.</p>
+      <div class="hero-actions">
+        <a href="register.html" class="btn-hero-primary">
+          <i class="fa-solid fa-rocket"></i> Get Started
+        </a>
+        <button onclick="clickSound.play(); showLoginModal()" class="btn-hero-outline">
+          <i class="fa-solid fa-arrow-right-to-bracket"></i> Login
+        </button>
+      </div>
+    </div>
 
-<section class="text-center py-32">
-
-<h1 class="text-3xl md:text-5xl font-bold mb-6">
-Complaint Management System
-</h1>
-
-<p class="mb-8 text-lg">
-Submit complaints and track their resolution easily.
-</p>
-
-<div class="flex flex-col md:flex-row justify-center gap-4">
-<a href="register.html" class="bg-yellow-400 text-black px-6 py-3 rounded hover:scale-110 transition">
-Get Started
-</a>
-
-<button onclick="clickSound.play(); showLoginModal()" class="bg-white text-black px-6 py-3 rounded hover:scale-110 transition">
-Login
-</button>
-</div>
-
+    <div class="hero-visual">
+      <div class="hero-dashboard">
+        <div class="dash-mini-header">
+          <div class="dash-dot" style="background:#DC2626;"></div>
+          <div class="dash-dot" style="background:#F59E0B;margin:0 4px;"></div>
+          <div class="dash-dot" style="background:#16A34A;"></div>
+          <span style="color:rgba(255,255,255,0.4);font-size:0.72rem;margin-left:0.75rem;font-family:'Inter',sans-serif;">Admin Dashboard</span>
+        </div>
+        <div class="dash-mini-stat">
+          <div class="mini-stat-card"><div class="num">1.2K</div><div class="lbl">Submitted</div></div>
+          <div class="mini-stat-card"><div class="num" style="color:#D4A017;">98%</div><div class="lbl">Resolution Rate</div></div>
+          <div class="mini-stat-card"><div class="num" style="color:#4ADE80;">980</div><div class="lbl">Resolved</div></div>
+          <div class="mini-stat-card"><div class="num" style="color:#FCD34D;">42</div><div class="lbl">Pending</div></div>
+        </div>
+        <div class="mini-complaint-item">
+          <div class="dot" style="background:#F59E0B;"></div>
+          <div class="info"><div class="title">Lift Malfunction – Block C</div><div class="sub">Submitted 2h ago · High Priority</div></div>
+          <span class="mini-badge badge-pending">Pending</span>
+        </div>
+        <div class="mini-complaint-item">
+          <div class="dot" style="background:#4ADE80;"></div>
+          <div class="info"><div class="title">Electrical Outage – B4</div><div class="sub">Submitted 5h ago · Medium</div></div>
+          <span class="mini-badge badge-resolved">Resolved</span>
+        </div>
+        <div class="mini-complaint-item">
+          <div class="dot" style="background:#86EFAC;"></div>
+          <div class="info"><div class="title">Water Leakage – A2</div><div class="sub">Submitted 1d ago · Low</div></div>
+          <span class="mini-badge badge-progress">In Progress</span>
+        </div>
+      </div>
+    </div>
+  </div>
 </section>
 
-<!-- STATS -->
-
-<section class="bg-black/40 py-16">
-
-<div class="max-w-5xl mx-auto grid md:grid-cols-3 text-center gap-6">
-
-<div>
-<h2 id="stat1" class="text-3xl md:text-4xl font-bold">0</h2>
-<p>Complaints Submitted</p>
-</div>
-
-<div>
-<h2 id="stat2" class="text-3xl md:text-4xl font-bold">0</h2>
-<p>Complaints Resolved</p>
-</div>
-
-<div>
-<h2 id="stat3" class="text-3xl md:text-4xl font-bold">0</h2>
-<p>Active Users</p>
-</div>
-
-</div>
-
+<!-- ══════════════ STATS ══════════════ -->
+<section class="stats-section">
+  <div class="stats-grid">
+    <div class="stat-item">
+      <div class="icon" style="background:rgba(212,160,23,0.15);color:#D4A017;"><i class="fa-solid fa-file-circle-plus"></i></div>
+      <h3 id="stat1">0</h3>
+      <p>Complaints Submitted</p>
+    </div>
+    <div class="stat-item">
+      <div class="icon" style="background:rgba(22,163,74,0.15);color:#4ADE80;"><i class="fa-solid fa-circle-check"></i></div>
+      <h3 id="stat2">0</h3>
+      <p>Complaints Resolved</p>
+    </div>
+    <div class="stat-item">
+      <div class="icon" style="background:rgba(255,255,255,0.1);color:#fff;"><i class="fa-solid fa-users"></i></div>
+      <h3 id="stat3">0</h3>
+      <p>Active Users</p>
+    </div>
+    <div class="stat-item">
+      <div class="icon" style="background:rgba(212,160,23,0.15);color:#D4A017;"><i class="fa-solid fa-chart-pie"></i></div>
+      <h3 style="color:#fff;">98%</h3>
+      <p>Resolution Rate</p>
+    </div>
+  </div>
 </section>
 
-<!-- ABOUT -->
-
-<section id="about" class="py-20 text-center">
-
-<h2 class="text-2xl md:text-3xl font-bold mb-10">Why Use Our System</h2>
-
-<div class="max-w-6xl mx-auto grid md:grid-cols-3 gap-6">
-
-<div class="card bg-white text-black p-6 rounded shadow">
-<i class="fa-solid fa-bolt text-3xl text-indigo-600 mb-3"></i>
-<h3 class="font-bold">Fast Complaint Handling</h3>
-<p>Submit complaints instantly.</p>
-</div>
-
-<div class="card bg-white text-black p-6 rounded shadow">
-<i class="fa-solid fa-chart-line text-3xl text-green-600 mb-3"></i>
-<h3 class="font-bold">Real Time Tracking</h3>
-<p>Track complaint progress easily.</p>
-</div>
-
-<div class="card bg-white text-black p-6 rounded shadow">
-<i class="fa-solid fa-star text-3xl text-yellow-500 mb-3"></i>
-<h3 class="font-bold">Feedback System</h3>
-<p>Users rate service after resolution.</p>
-</div>
-
-</div>
-
+<!-- ══════════════ FEATURES ══════════════ -->
+<section class="section" id="features">
+  <div class="section-header">
+    <div style="display:flex;justify-content:center;margin-bottom:0.75rem;">
+      <span style="background:rgba(15,61,46,0.08);color:#0F3D2E;font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;padding:0.3rem 0.9rem;border-radius:999px;">Platform Features</span>
+    </div>
+    <div class="section-title">Everything You Need to Manage Complaints</div>
+    <p class="section-subtitle">A complete suite of tools to streamline your complaint resolution workflow from submission to closure.</p>
+  </div>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon" style="background:rgba(15,61,46,0.08);color:#0F3D2E;"><i class="fa-solid fa-bolt-lightning"></i></div>
+      <h3>Fast Complaint Submission</h3>
+      <p>Submit complaints in seconds with our intuitive multi-step form. Attach photos and categorise by priority for faster resolution.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:rgba(22,163,74,0.1);color:#16A34A;"><i class="fa-solid fa-satellite-dish"></i></div>
+      <h3>Real-Time Tracking</h3>
+      <p>Monitor complaint status live via Socket.IO powered real-time updates. Never miss a status change again.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:rgba(212,160,23,0.1);color:#D4A017;"><i class="fa-solid fa-gauge-high"></i></div>
+      <h3>Admin Dashboard</h3>
+      <p>Powerful admin controls with KPI cards, search, filter, and one-click resolution for efficient complaint management.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:rgba(124,58,237,0.08);color:#7C3AED;"><i class="fa-solid fa-robot"></i></div>
+      <h3>Smart Support Chatbot</h3>
+      <p>AI-assisted chatbot helps users register complaints conversationally, guiding them step by step through the process.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:rgba(245,158,11,0.1);color:#F59E0B;"><i class="fa-solid fa-star-half-stroke"></i></div>
+      <h3>Feedback & Ratings</h3>
+      <p>Users rate the resolution experience with a 5-star system and comments, driving continuous service improvement.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:rgba(220,38,38,0.08);color:#DC2626;"><i class="fa-solid fa-clock-rotate-left"></i></div>
+      <h3>Complaint History</h3>
+      <p>Complete audit trail of all submitted complaints with advanced filtering by status, date, and category.</p>
+    </div>
+  </div>
 </section>
 
-<!-- CONTACT -->
-
-<section id="contact" class="bg-black/40 py-16 text-center">
-
-<h2 class="text-2xl md:text-3xl font-bold mb-6">Contact</h2>
-
-<p>Email: support@complaintportal.com</p>
-<p>Phone: +91 9876543210</p>
-
+<!-- ══════════════ HOW IT WORKS ══════════════ -->
+<section class="how-section" id="how-it-works">
+  <div class="section-header">
+    <div style="display:flex;justify-content:center;margin-bottom:0.75rem;">
+      <span style="background:rgba(15,61,46,0.12);color:#0F3D2E;font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;padding:0.3rem 0.9rem;border-radius:999px;">Process</span>
+    </div>
+    <div class="section-title">How It Works</div>
+    <p class="section-subtitle">A simple four-step process that takes your complaint from submission to resolution.</p>
+  </div>
+  <div class="steps-timeline">
+    <div class="step-item">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <h3><i class="fa-solid fa-file-pen" style="color:#D4A017;margin-right:0.5rem;"></i>Submit Complaint</h3>
+        <p>Fill in the complaint form with your details, category, priority level, and description. Optionally attach a photo for better context.</p>
+      </div>
+    </div>
+    <div class="step-item">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <h3><i class="fa-solid fa-magnifying-glass" style="color:#D4A017;margin-right:0.5rem;"></i>Admin Reviews</h3>
+        <p>The admin receives real-time notifications and reviews all complaints via the dashboard, prioritising high-urgency cases first.</p>
+      </div>
+    </div>
+    <div class="step-item">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <h3><i class="fa-solid fa-wrench" style="color:#D4A017;margin-right:0.5rem;"></i>Issue Resolution</h3>
+        <p>The admin marks the complaint as resolved once the issue is fixed. You receive an instant status update via the platform.</p>
+      </div>
+    </div>
+    <div class="step-item" style="margin-bottom:0;">
+      <div class="step-num" style="background:var(--secondary);color:#1a1a1a;">4</div>
+      <div class="step-content">
+        <h3><i class="fa-solid fa-star" style="color:#D4A017;margin-right:0.5rem;"></i>User Feedback</h3>
+        <p>Rate your experience with a 5-star rating and optional comment to help us continuously improve our service quality.</p>
+      </div>
+    </div>
+  </div>
 </section>
 
-<footer class="text-center p-4">
-© 2026 Complaint Portal
+<!-- ══════════════ TRUST ══════════════ -->
+<section class="section">
+  <div class="section-header">
+    <div style="display:flex;justify-content:center;margin-bottom:0.75rem;">
+      <span style="background:rgba(15,61,46,0.08);color:#0F3D2E;font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;padding:0.3rem 0.9rem;border-radius:999px;">Why Choose Us</span>
+    </div>
+    <div class="section-title">Built for Trust & Transparency</div>
+    <p class="section-subtitle">Six core pillars that make our platform the right choice for your organisation.</p>
+  </div>
+  <div class="trust-grid">
+    <div class="trust-card">
+      <div class="trust-icon"><i class="fa-solid fa-eye"></i></div>
+      <div><h4>Full Transparency</h4><p>Every action is logged and visible. Residents can track their complaint status at every stage.</p></div>
+    </div>
+    <div class="trust-card">
+      <div class="trust-icon"><i class="fa-solid fa-gauge-simple-high"></i></div>
+      <div><h4>Fast Resolution</h4><p>Prioritised workflows and admin alerts ensure high-urgency complaints get resolved first.</p></div>
+    </div>
+    <div class="trust-card">
+      <div class="trust-icon"><i class="fa-solid fa-lock"></i></div>
+      <div><h4>Secure Access</h4><p>JWT-based authentication ensures only authorised users and admins can access the platform.</p></div>
+    </div>
+    <div class="trust-card">
+      <div class="trust-icon"><i class="fa-solid fa-satellite-dish"></i></div>
+      <div><h4>Real-Time Updates</h4><p>Socket.IO powers instant notifications so no one misses a status change.</p></div>
+    </div>
+    <div class="trust-card">
+      <div class="trust-icon"><i class="fa-solid fa-face-smile"></i></div>
+      <div><h4>User Satisfaction</h4><p>Built-in feedback and rating system measures and drives continuous service improvement.</p></div>
+    </div>
+    <div class="trust-card">
+      <div class="trust-icon"><i class="fa-solid fa-code-branch"></i></div>
+      <div><h4>Smart Routing</h4><p>Categorised and prioritised complaints get routed to the right team for faster action.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ TESTIMONIALS ══════════════ -->
+<section class="testimonials-section">
+  <div style="max-width:1140px;margin:0 auto;">
+    <div class="section-header" style="margin-bottom:2.5rem;">
+      <div style="display:flex;justify-content:center;margin-bottom:0.75rem;">
+        <span style="background:rgba(212,160,23,0.15);color:#D4A017;font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;padding:0.3rem 0.9rem;border-radius:999px;">Testimonials</span>
+      </div>
+      <div class="section-title" style="color:#fff;">What Our Users Say</div>
+      <p class="section-subtitle" style="color:rgba(255,255,255,0.6);">Trusted by residents and administrators across multiple complexes.</p>
+    </div>
+    <div class="testimonials-grid">
+      <div class="testimonial-card">
+        <div class="testimonial-stars">★★★★★</div>
+        <blockquote>"The complaint portal made it incredibly easy to report our lift issue. Within 24 hours the admin had marked it resolved. Excellent system!"</blockquote>
+        <div class="testimonial-author">
+          <div class="author-avatar" style="background:#D4A017;">RK</div>
+          <div><div class="author-name">Ravi Kumar</div><div class="author-role">Resident, Block A</div></div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="testimonial-stars">★★★★★</div>
+        <blockquote>"As an admin, this dashboard gives me complete visibility over all complaints. The real-time updates and priority flags save so much time."</blockquote>
+        <div class="testimonial-author">
+          <div class="author-avatar" style="background:#16A34A;color:#fff;">MJ</div>
+          <div><div class="author-name">Meena Joshi</div><div class="author-role">Facility Manager</div></div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="testimonial-stars">★★★★☆</div>
+        <blockquote>"The chatbot made complaint registration super convenient. I didn't even need to fill a form — just chatted and it was done. Very impressive!"</blockquote>
+        <div class="testimonial-author">
+          <div class="author-avatar" style="background:#7C3AED;color:#fff;">SP</div>
+          <div><div class="author-name">Sanjay Patil</div><div class="author-role">Resident, Block C</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ CONTACT ══════════════ -->
+<section class="contact-section" id="contact">
+  <div class="contact-container">
+    <div class="section-header">
+      <div style="display:flex;justify-content:center;margin-bottom:0.75rem;">
+        <span style="background:rgba(15,61,46,0.08);color:#0F3D2E;font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;padding:0.3rem 0.9rem;border-radius:999px;">Contact</span>
+      </div>
+      <div class="section-title">Get In Touch</div>
+      <p class="section-subtitle">Our support team is available to help you with any platform-related queries.</p>
+    </div>
+    <div class="contact-grid">
+      <div class="contact-card">
+        <div class="contact-icon"><i class="fa-solid fa-envelope"></i></div>
+        <h4>Email</h4>
+        <p>support@complaintportal.com</p>
+      </div>
+      <div class="contact-card">
+        <div class="contact-icon"><i class="fa-solid fa-phone"></i></div>
+        <h4>Phone</h4>
+        <p>+91 9876543210</p>
+      </div>
+      <div class="contact-card">
+        <div class="contact-icon"><i class="fa-solid fa-location-dot"></i></div>
+        <h4>Location</h4>
+        <p>Chennai, Tamil Nadu, India</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ FOOTER ══════════════ -->
+<footer class="footer">
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="logo">
+        <div class="icon">CP</div>
+        <span>ComplaintPortal</span>
+      </div>
+      <p>Enterprise-grade complaint management platform. Transparent, fast, and built for modern residential and commercial complexes.</p>
+      <div class="social-links" style="margin-top:1rem;">
+        <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+        <a href="#" class="social-link"><i class="fab fa-linkedin-in"></i></a>
+        <a href="#" class="social-link"><i class="fab fa-github"></i></a>
+        <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h5>About</h5>
+      <ul>
+        <li><a href="#">Our Story</a></li>
+        <li><a href="#">Mission</a></li>
+        <li><a href="#features">Features</a></li>
+        <li><a href="#how-it-works">How It Works</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>Quick Links</h5>
+      <ul>
+        <li><a href="login.html">Login</a></li>
+        <li><a href="register.html">Register</a></li>
+        <li><a href="user.html">User Dashboard</a></li>
+        <li><a href="admin.html">Admin Panel</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>Support</h5>
+      <ul>
+        <li><a href="#contact">Contact Us</a></li>
+        <li><a href="#">FAQ</a></li>
+        <li><a href="#">Privacy Policy</a></li>
+        <li><a href="#">Terms of Service</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2026 ComplaintPortal. All rights reserved.</p>
+    <div class="social-links">
+      <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+      <a href="#" class="social-link"><i class="fab fa-github"></i></a>
+    </div>
+  </div>
 </footer>
 
-<!-- Login Selection Modal -->
-<div id="loginModal" class="fixed inset-0 bg-black bg-opacity-60 hidden items-center justify-center z-50">
-  <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full mx-4 relative">
-    <button onclick="clickSound.play(); hideLoginModal()" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700">
-      <i class="fas fa-times fa-lg"></i>
+<!-- ══════════════ LOGIN MODAL ══════════════ -->
+<div id="loginModal" class="modal-bg" onclick="if(event.target===this) hideLoginModal()">
+  <div class="modal-box">
+    <button class="modal-close" onclick="clickSound.play(); hideLoginModal()">
+      <i class="fas fa-times"></i>
     </button>
-    <div class="text-center mb-6">
-      <h2 class="text-3xl font-bold text-gray-900 mb-2">Login as</h2>
-      <p class="text-gray-600">Choose your access type before signing in.</p>
+    <div style="text-align:center;margin-bottom:1.75rem;">
+      <div style="width:52px;height:52px;background:rgba(15,61,46,0.08);border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;font-size:1.3rem;color:#0F3D2E;">
+        <i class="fa-solid fa-arrow-right-to-bracket"></i>
+      </div>
+      <h2 style="font-size:1.4rem;font-weight:800;color:#1E293B;margin-bottom:0.4rem;">Sign In As</h2>
+      <p style="font-size:0.88rem;color:#64748B;">Choose your access level to continue.</p>
     </div>
-    <div class="grid gap-4">
-      <button onclick="clickSound.play(); chooseLogin('user')" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-2xl font-semibold transition">
-        <i class="fas fa-user mr-2"></i> User
+    <div style="display:flex;flex-direction:column;gap:0.75rem;">
+      <button onclick="clickSound.play(); chooseLogin('user')" style="width:100%;background:#0F3D2E;color:#fff;padding:0.95rem;border-radius:10px;border:none;font-size:0.95rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:0.6rem;font-family:'Inter',sans-serif;transition:filter 0.15s;" onmouseover="this.style.filter='brightness(1.1)'" onmouseout="this.style.filter='none'">
+        <i class="fas fa-user"></i> Continue as User
       </button>
-      <button onclick="clickSound.play(); chooseLogin('admin')" class="w-full bg-purple-600 hover:bg-purple-700 text-white py-4 rounded-2xl font-semibold transition">
-        <i class="fas fa-user-shield mr-2"></i> Admin
+      <button onclick="clickSound.play(); chooseLogin('admin')" style="width:100%;background:#1E293B;color:#fff;padding:0.95rem;border-radius:10px;border:none;font-size:0.95rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:0.6rem;font-family:'Inter',sans-serif;transition:filter 0.15s;" onmouseover="this.style.filter='brightness(1.15)'" onmouseout="this.style.filter='none'">
+        <i class="fas fa-user-shield"></i> Continue as Admin
       </button>
     </div>
   </div>
 </div>
 
 <script>
-
 const clickSound = new Audio("sounds/click.mp3");
 
 function toggleMenu(){
-document.getElementById("menu").classList.toggle("hidden")
+  const menu = document.getElementById("menu");
+  menu.classList.toggle("mobile-open");
 }
 
 function toggleTheme(){
-document.body.classList.toggle("bg-gray-900");
-document.body.classList.toggle("text-white");
+  document.body.classList.toggle("dark-mode");
 }
 
 function counter(id,target){
-let count=0
-let interval=setInterval(()=>{
-count+=10
-document.getElementById(id).innerText=count
-if(count>=target) clearInterval(interval)
-},30)
+  let count=0;
+  let interval=setInterval(()=>{
+    count+=10;
+    document.getElementById(id).innerText=count.toLocaleString();
+    if(count>=target) { document.getElementById(id).innerText=target.toLocaleString()+"+"; clearInterval(interval); }
+  },30);
 }
 
-counter("stat1",1200)
-counter("stat2",980)
-counter("stat3",350)
+counter("stat1",1200);
+counter("stat2",980);
+counter("stat3",350);
 
 function showLoginModal() {
   const modal = document.getElementById("loginModal");
@@ -238,11 +727,17 @@ function hideLoginModal() {
 
 function chooseLogin(role) {
   hideLoginModal();
-  // Pass role to login page if needed for later behavior
   window.location.href = `login.html?role=${role}`;
 }
 
+// Intersection Observer for fade-in sections
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if(e.isIntersecting) { e.target.style.opacity='1'; e.target.style.transform='translateY(0)'; } });
+}, { threshold: 0.1 });
+document.querySelectorAll('.feature-card,.trust-card,.step-content,.testimonial-card,.contact-card').forEach(el => {
+  el.style.opacity='0'; el.style.transform='translateY(20px)'; el.style.transition='opacity 0.5s ease, transform 0.5s ease';
+  observer.observe(el);
+});
 </script>
-
 </body>
 </html>

@@ -1,111 +1,308 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>User Complaint History</title>
-  <link rel="stylesheet" href="style.css">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Complaint History — ComplaintPortal</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+body { background: #F0F4F8 !important; font-family: 'Inter', sans-serif; }
+
+.top-bar {
+  background: #0F3D2E;
+  padding: 0 1.5rem;
+  height: 62px;
+  display: flex; align-items: center; justify-content: space-between;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.15);
+  position: sticky; top: 0; z-index: 50;
+}
+.brand { display: flex; align-items: center; gap: 0.6rem; }
+.brand-icon { width: 34px; height: 34px; background: #D4A017; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px; color: #1a1a1a; }
+.brand span { font-size: 0.9rem; font-weight: 700; color: #fff; }
+.back-btn {
+  background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+  color: rgba(255,255,255,0.85); padding: 0.42rem 0.9rem; border-radius: 8px;
+  font-size: 0.82rem; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif;
+  display: flex; align-items: center; gap: 0.4rem; transition: background 0.15s;
+}
+.back-btn:hover { background: rgba(255,255,255,0.18); }
+
+.main-wrap { max-width: 960px; margin: 0 auto; padding: 1.75rem 1rem; }
+
+/* PAGE HEADER */
+.page-header { margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1rem; }
+.page-title-area h1 { font-size: 1.45rem; font-weight: 800; color: #1E293B; letter-spacing: -0.02em; }
+.page-title-area p { font-size: 0.85rem; color: #64748B; margin-top: 0.2rem; }
+
+/* CONTROLS BAR */
+.controls-bar {
+  background: #fff; border: 1px solid #E2E8F0; border-radius: 14px;
+  padding: 1rem 1.25rem; margin-bottom: 1.25rem;
+  display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+.controls-label { font-size: 0.8rem; color: #64748B; font-weight: 600; white-space: nowrap; }
+.filter-select {
+  border: 1.5px solid #E2E8F0; border-radius: 8px;
+  padding: 0.5rem 0.8rem; font-size: 0.85rem; font-family: 'Inter', sans-serif;
+  color: #1E293B; background: #FAFAFA; outline: none; cursor: pointer;
+  transition: border-color 0.2s;
+}
+.filter-select:focus { border-color: #0F3D2E; box-shadow: 0 0 0 3px rgba(15,61,46,0.1); }
+.results-count { font-size: 0.78rem; color: #94A3B8; margin-left: auto; white-space: nowrap; }
+
+/* HISTORY TABLE CARD */
+.history-card {
+  background: #fff; border: 1px solid #E2E8F0; border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05); overflow: hidden;
+}
+.card-head {
+  background: #0F3D2E; padding: 1rem 1.5rem;
+  display: flex; align-items: center; gap: 0.6rem;
+}
+.card-head h2 { color: #fff; font-size: 0.92rem; font-weight: 700; }
+.card-head-icon { width: 30px; height: 30px; background: rgba(255,255,255,0.12); border-radius: 7px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 0.85rem; }
+
+/* TABLE */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+thead { background: #F8FAFC; }
+thead th {
+  padding: 0.85rem 1.25rem; text-align: left;
+  font-size: 0.72rem; font-weight: 700; color: #64748B;
+  text-transform: uppercase; letter-spacing: 0.06em;
+  border-bottom: 1px solid #E2E8F0; white-space: nowrap;
+}
+tbody tr { border-bottom: 1px solid #F1F5F9; transition: background 0.15s; }
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: #FAFAFA; }
+tbody td { padding: 0.95rem 1.25rem; font-size: 0.85rem; color: #374151; vertical-align: middle; }
+.td-title { font-weight: 700; color: #1E293B; }
+.td-category { color: #64748B; display: flex; align-items: center; gap: 0.3rem; }
+.td-time { font-size: 0.78rem; color: #94A3B8; white-space: nowrap; }
+.td-feedback { font-size: 0.78rem; }
+
+/* STATUS TAGS */
+.status-tag {
+  display: inline-flex; align-items: center; gap: 0.25rem;
+  font-size: 0.7rem; font-weight: 700; border-radius: 999px;
+  padding: 0.22rem 0.65rem; text-transform: uppercase; letter-spacing: 0.04em;
+}
+.status-resolved   { background: rgba(22,163,74,0.12);  color: #15803D; border: 1px solid rgba(22,163,74,0.25); }
+.status-pending    { background: rgba(245,158,11,0.12);  color: #B45309; border: 1px solid rgba(245,158,11,0.3); }
+.status-inprogress { background: rgba(15,61,46,0.1);    color: #0F3D2E; border: 1px solid rgba(15,61,46,0.2); }
+
+.detail-btn {
+  background: rgba(15,61,46,0.08); color: #0F3D2E;
+  border: none; padding: 0.3rem 0.65rem; border-radius: 6px;
+  font-size: 0.75rem; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif;
+  transition: background 0.15s;
+}
+.detail-btn:hover { background: rgba(15,61,46,0.15); }
+
+/* EMPTY / LOADING */
+.empty-row td { text-align: center; padding: 3.5rem; color: #94A3B8; }
+.empty-icon { font-size: 2.2rem; display: block; margin-bottom: 0.6rem; opacity: 0.35; }
+
+/* CARD VIEW for mobile fallback */
+#historyComplaints { }
+
+.toast {
+  position: fixed; top: 1.2rem; right: 1.2rem;
+  background: #0F3D2E; color: #fff;
+  padding: 0.85rem 1.4rem; border-radius: 10px;
+  font-size: 0.88rem; font-weight: 500;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+  z-index: 9999; opacity: 0; pointer-events: none;
+  transform: translateY(-8px);
+  transition: opacity 0.3s, transform 0.3s;
+}
+.toast.visible { opacity: 1; transform: translateY(0); }
+
+@media (max-width: 600px) {
+  thead { display: none; }
+  tbody tr { display: block; border: 1px solid #E2E8F0; border-radius: 12px; margin-bottom: 0.75rem; padding: 0.85rem 1rem; }
+  tbody td { display: block; padding: 0.25rem 0; border: none; }
+  tbody td::before { content: attr(data-label) ': '; font-weight: 700; color: #94A3B8; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.04em; }
+  .history-card { background: transparent; border: none; box-shadow: none; }
+  .table-wrap { overflow: visible; }
+  table { display: block; }
+  tbody { display: block; }
+}
+</style>
 </head>
+<body>
 
-<body class="bg-gray-100 min-h-screen p-6">
-  <div class="max-w-4xl mx-auto">
-    <div class="flex justify-between items-center mb-6">
-      <h2 class="text-2xl font-bold">
-        <i class="fa-solid fa-clock-rotate-left mr-2"></i>Complaint History
-      </h2>
-      <div class="space-x-2">
-        <button onclick="clickSound.play(); window.location.href='user.html'" class="action-btn btn-blue">
-          <i class="fa-solid fa-arrow-left mr-1"></i>Back
-        </button>
-      </div>
-    </div>
+<div class="top-bar">
+  <div class="brand">
+    <div class="brand-icon">CP</div>
+    <span>ComplaintPortal</span>
+  </div>
+  <button onclick="clickSound.play(); window.location.href='user.html'" class="back-btn">
+    <i class="fa-solid fa-arrow-left"></i> Dashboard
+  </button>
+</div>
 
-    <div class="card">
-      <div class="flex justify-between items-center mb-4">
-        <h3 class="font-semibold">History List</h3>
-        <select id="historyFilter" onchange="renderHistoryComplaints()" class="border px-3 py-1 rounded bg-white">
-          <option value="All">Show All</option>
-          <option value="Pending">Pending</option>
-          <option value="Resolved">Resolved</option>
-          <option value="Reopened">Reopened</option>
-        </select>
-      </div>
+<div class="main-wrap">
 
-      <ul id="historyComplaints" class="space-y-2"></ul>
+  <div class="page-header">
+    <div class="page-title-area">
+      <h1><i class="fa-solid fa-clock-rotate-left" style="color:#0F3D2E;font-size:1.2rem;margin-right:0.5rem;"></i>Complaint History</h1>
+      <p>A complete record of all your submitted complaints.</p>
     </div>
   </div>
 
-  <div id="toast" class="toast"></div>
+  <!-- CONTROLS -->
+  <div class="controls-bar">
+    <span class="controls-label"><i class="fa-solid fa-filter" style="color:#94A3B8;margin-right:0.3rem;"></i> Filter by Status:</span>
+    <select id="historyFilter" onchange="renderHistoryComplaints()" class="filter-select">
+      <option value="All">Show All</option>
+      <option value="Pending">Pending</option>
+      <option value="Resolved">Resolved</option>
+      <option value="Reopened">Reopened</option>
+    </select>
+    <span class="results-count" id="historyCount">0 records</span>
+  </div>
 
-  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-  <script>
-    const token = localStorage.getItem("token");
-    if (!token) window.location.href = "login.html";
+  <!-- HISTORY TABLE -->
+  <div class="history-card">
+    <div class="card-head">
+      <div class="card-head-icon"><i class="fa-solid fa-table-list"></i></div>
+      <h2>History Log</h2>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Title</th>
+            <th>Category</th>
+            <th>Status</th>
+            <th>Submitted</th>
+            <th>Feedback</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="historyComplaints">
+          <tr class="empty-row">
+            <td colspan="7">
+              <i class="fa-solid fa-spinner fa-spin empty-icon"></i>
+              Loading history...
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 
-    const clickSound = new Audio("sounds/click.mp3");
+</div>
 
-    let allUserComplaints = [];
+<div id="toast" class="toast"></div>
 
-    function formatTime(dateString) {
-      const date = new Date(dateString);
-      return date.toLocaleString("en-IN", {
-        hour: "2-digit",
-        minute: "2-digit",
-        day: "2-digit",
-        month: "short"
-      });
-    }
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+<script>
+const token = localStorage.getItem("token");
+if (!token) window.location.href = "login.html";
 
-    function createHistoryItem(c) {
-      const li = document.createElement("li");
-      li.className = "complaint-entry";
-      li.innerHTML = `
-        <div class="flex justify-between items-center">
-          <span class="font-medium">${c.title}</span>
-          <span class="text-xs text-gray-500">${formatTime(c.createdAt)}</span>
-        </div>
-        <p class="text-sm text-gray-700">${c.category}</p>
-        <span class="status-tag mt-1 ${
-          c.status === "Resolved" ? "status-resolved" : c.status === "Pending" ? "status-pending" : "status-inprogress"
-        }">${c.status}</span>
-        ${c.status === "Resolved" && c.feedback ? `<p class="text-sm mt-1 text-green-700">⭐ ${c.feedback.rating}/5 - ${c.feedback.comment || "No comment"}</p>` : ""}
-      `;
-      return li;
-    }
+const clickSound = new Audio("sounds/click.mp3");
 
-    function renderHistoryComplaints() {
-      const historyList = document.getElementById("historyComplaints");
-      const filter = document.getElementById("historyFilter").value;
+let allUserComplaints = [];
 
-      let historyItems = [...allUserComplaints];
-      if (filter === "Pending") historyItems = historyItems.filter(c => c.status === "Pending");
-      else if (filter === "Resolved") historyItems = historyItems.filter(c => c.status === "Resolved");
-      else if (filter === "Reopened") historyItems = historyItems.filter(c => c.status === "Reopened" || c.status === "Pending");
+function formatTime(dateString) {
+  const date = new Date(dateString);
+  return date.toLocaleString("en-IN", {
+    hour: "2-digit", minute: "2-digit",
+    day: "2-digit", month: "short",
+    year: "numeric"
+  });
+}
 
-      historyItems.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+function getStatusClass(status) {
+  if (status === "Resolved") return "status-resolved";
+  if (status === "Pending") return "status-pending";
+  return "status-inprogress";
+}
 
-      historyList.innerHTML = "";
-      historyItems.forEach(c => {
-        historyList.appendChild(createHistoryItem(c));
-      });
-    }
+function getCatIcon(cat) {
+  const m = { Electrical:'⚡', Plumbing:'🚿', Lift:'🛗', Cleaning:'🧹', Security:'🚓' };
+  return m[cat] || '📋';
+}
 
-    async function loadHistory() {
-      const res = await fetch("http://localhost:5000/api/complaints/my", {
-        headers: { Authorization: "Bearer " + token }
-      });
-      allUserComplaints = await res.json();
-      renderHistoryComplaints();
-    }
+function createHistoryItem(c, index) {
+  // Table row approach
+  const tr = document.createElement("tr");
+  const feedbackCell = c.status === "Resolved" && c.feedback
+    ? `<span style="color:#D4A017;">★</span> ${c.feedback.rating}/5`
+    : '<span style="color:#CBD5E1;">—</span>';
 
-    function showToast(msg) {
-      const toast = document.getElementById("toast");
-      toast.innerText = msg;
-      toast.classList.add("visible");
-      setTimeout(() => toast.classList.remove("visible"), 3000);
-    }
+  tr.innerHTML = `
+    <td data-label="No" style="color:#94A3B8;font-weight:600;">${index + 1}</td>
+    <td data-label="Title" class="td-title">${c.title}</td>
+    <td data-label="Category" class="td-category">${getCatIcon(c.category)} ${c.category}</td>
+    <td data-label="Status"><span class="status-tag ${getStatusClass(c.status)}">${c.status}</span></td>
+    <td data-label="Submitted" class="td-time">${formatTime(c.createdAt)}</td>
+    <td data-label="Feedback" class="td-feedback">${feedbackCell}</td>
+    <td data-label="Action">
+      <button onclick="clickSound.play(); window.location.href='complaint-details.html?id=${c._id}'" class="detail-btn">
+        <i class="fa-solid fa-eye mr-1"></i> View
+      </button>
+    </td>
+  `;
+  return tr;
+}
 
-    loadHistory();
-  </script>
+function renderHistoryComplaints() {
+  const historyList = document.getElementById("historyComplaints");
+  const filter = document.getElementById("historyFilter").value;
+  const countEl = document.getElementById("historyCount");
+
+  let historyItems = [...allUserComplaints];
+  if (filter === "Pending")  historyItems = historyItems.filter(c => c.status === "Pending");
+  else if (filter === "Resolved") historyItems = historyItems.filter(c => c.status === "Resolved");
+  else if (filter === "Reopened") historyItems = historyItems.filter(c => c.status === "Reopened" || c.status === "Pending");
+
+  historyItems.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+  if (countEl) countEl.textContent = historyItems.length + (historyItems.length === 1 ? " record" : " records");
+
+  historyList.innerHTML = "";
+
+  if (historyItems.length === 0) {
+    historyList.innerHTML = `
+      <tr class="empty-row">
+        <td colspan="7">
+          <i class="fa-solid fa-inbox empty-icon"></i>
+          No complaints found for this filter.
+        </td>
+      </tr>`;
+    return;
+  }
+
+  historyItems.forEach((c, i) => {
+    historyList.appendChild(createHistoryItem(c, i));
+  });
+}
+
+async function loadHistory() {
+  const res = await fetch("http://localhost:5000/api/complaints/my", {
+    headers: { Authorization: "Bearer " + token }
+  });
+  allUserComplaints = await res.json();
+  renderHistoryComplaints();
+}
+
+function showToast(msg) {
+  const toast = document.getElementById("toast");
+  toast.innerText = msg;
+  toast.classList.add("visible");
+  setTimeout(() => toast.classList.remove("visible"), 3000);
+}
+
+loadHistory();
+</script>
 </body>
 </html>

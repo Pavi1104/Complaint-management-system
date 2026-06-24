@@ -1,35 +1,232 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Admin Dashboard</title>
-  <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard — ComplaintPortal</title>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+body { background: #F0F4F8 !important; font-family: 'Inter', sans-serif; }
 
-  <script src="https://cdn.tailwindcss.com"></script>
+.admin-topbar {
+  background: #0F3D2E;
+  padding: 0 1.5rem;
+  height: 62px;
+  display: flex; align-items: center; justify-content: space-between;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.15);
+  position: sticky; top: 0; z-index: 50;
+}
+.brand { display: flex; align-items: center; gap: 0.6rem; }
+.brand-icon { width: 34px; height: 34px; background: #D4A017; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px; color: #1a1a1a; }
+.brand span { font-size: 0.9rem; font-weight: 700; color: #fff; }
+.admin-badge {
+  background: rgba(212,160,23,0.15); border: 1px solid rgba(212,160,23,0.3);
+  color: #D4A017; padding: 0.3rem 0.75rem; border-radius: 999px;
+  font-size: 0.75rem; font-weight: 700; letter-spacing: 0.04em;
+  display: flex; align-items: center; gap: 0.4rem;
+}
+.topbar-actions { display: flex; gap: 0.5rem; align-items: center; }
+.btn-logout {
+  background: #DC2626; color: #fff;
+  padding: 0.42rem 0.9rem; border-radius: 8px; border: none;
+  font-size: 0.82rem; font-weight: 600; cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  display: flex; align-items: center; gap: 0.4rem;
+  transition: filter 0.15s;
+}
+.btn-logout:hover { filter: brightness(1.1); }
+
+.main-wrap { max-width: 1200px; margin: 0 auto; padding: 1.75rem 1rem; }
+
+/* KPI ROW */
+.kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.75rem; }
+.kpi-card {
+  background: #fff; border: 1px solid #E2E8F0; border-radius: 14px;
+  padding: 1.25rem 1.5rem; box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  display: flex; gap: 1rem; align-items: center;
+  cursor: pointer; position: relative; overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+}
+.kpi-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+.kpi-all::before    { background: #0F3D2E; }
+.kpi-pending::before { background: #F59E0B; }
+.kpi-resolved::before { background: #16A34A; }
+.kpi-reopened::before { background: #7C3AED; }
+.kpi-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.09); }
+.kpi-card.active-filter { border-color: rgba(15,61,46,0.4); box-shadow: 0 0 0 3px rgba(15,61,46,0.1); }
+.kpi-icon { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; }
+.kpi-val { font-size: 1.6rem; font-weight: 800; color: #1E293B; line-height: 1; }
+.kpi-lbl { font-size: 0.75rem; color: #94A3B8; font-weight: 500; margin-top: 0.2rem; }
+.kpi-progress { display: none; } /* kept from old updateStatusSummary compat */
+
+/* CONTROLS */
+.controls-bar {
+  background: #fff; border: 1px solid #E2E8F0; border-radius: 14px;
+  padding: 1rem 1.25rem; margin-bottom: 1.25rem;
+  display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+.search-wrap { position: relative; flex: 1; min-width: 220px; }
+.search-icon { position: absolute; left: 0.9rem; top: 50%; transform: translateY(-50%); color: #94A3B8; font-size: 0.9rem; }
+#searchBox {
+  width: 100%; border: 1.5px solid #E2E8F0; border-radius: 9px;
+  padding: 0.65rem 0.9rem 0.65rem 2.6rem;
+  font-size: 0.88rem; font-family: 'Inter', sans-serif;
+  color: #1E293B; background: #FAFAFA; outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+#searchBox:focus { border-color: #0F3D2E; background: #fff; box-shadow: 0 0 0 3px rgba(15,61,46,0.1); }
+.filter-label { font-size: 0.8rem; color: #64748B; font-weight: 600; white-space: nowrap; }
+.results-count { font-size: 0.78rem; color: #94A3B8; margin-left: auto; white-space: nowrap; }
+
+/* COMPLAINTS CONTAINER */
+.complaints-panel { background: #fff; border: 1px solid #E2E8F0; border-radius: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.05); overflow: hidden; }
+.panel-head {
+  background: #0F3D2E; padding: 1rem 1.5rem;
+  display: flex; align-items: center; gap: 0.6rem;
+}
+.panel-head h3 { color: #fff; font-size: 0.95rem; font-weight: 700; }
+.panel-head-icon { width: 32px; height: 32px; background: rgba(255,255,255,0.12); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 0.9rem; }
+
+#complaints { padding: 0; }
+
+/* COMPLAINT CARD */
+.complaint-card {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid #F1F5F9;
+  transition: background 0.15s;
+}
+.complaint-card:last-child { border-bottom: none; }
+.complaint-card:hover { background: #FAFAFA; }
+.cc-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.6rem; flex-wrap: wrap; gap: 0.5rem; }
+.cc-title { font-size: 0.95rem; font-weight: 700; color: #1E293B; display: flex; align-items: center; gap: 0.5rem; }
+.cc-badges { display: flex; gap: 0.4rem; align-items: center; flex-wrap: wrap; }
+.cc-meta { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.4rem 1rem; margin-bottom: 0.75rem; }
+.cc-meta-item { font-size: 0.8rem; color: #64748B; display: flex; align-items: center; gap: 0.35rem; }
+.cc-meta-item b { color: #374151; font-weight: 600; }
+.cc-desc { font-size: 0.83rem; color: #64748B; margin-bottom: 0.75rem; line-height: 1.5; background: #F8FAFC; border-radius: 8px; padding: 0.65rem 0.85rem; border: 1px solid #F1F5F9; }
+.cc-feedback { background: rgba(22,163,74,0.06); border: 1px solid rgba(22,163,74,0.2); border-radius: 8px; padding: 0.6rem 0.85rem; font-size: 0.8rem; margin-bottom: 0.75rem; color: #15803D; }
+.cc-actions { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+.cc-time { font-size: 0.72rem; color: #94A3B8; }
+.btn-resolve {
+  background: #0F3D2E; color: #fff;
+  padding: 0.45rem 1rem; border-radius: 8px; border: none;
+  font-size: 0.82rem; font-weight: 700; cursor: pointer; font-family: 'Inter', sans-serif;
+  display: flex; align-items: center; gap: 0.35rem;
+  transition: filter 0.15s, transform 0.15s;
+}
+.btn-resolve:hover { filter: brightness(1.1); transform: translateY(-1px); }
+
+.empty-msg { text-align: center; padding: 3.5rem 1.5rem; color: #94A3B8; }
+.empty-msg i { font-size: 2.5rem; display: block; margin-bottom: 0.75rem; opacity: 0.35; }
+.empty-msg p { font-size: 0.9rem; }
+
+/* STATUS TAGS */
+.status-tag {
+  display: inline-flex; align-items: center; gap: 0.25rem;
+  font-size: 0.7rem; font-weight: 700; border-radius: 999px;
+  padding: 0.22rem 0.65rem; text-transform: uppercase; letter-spacing: 0.04em;
+}
+.status-resolved   { background: rgba(22,163,74,0.12);  color: #15803D; border: 1px solid rgba(22,163,74,0.25); }
+.status-pending    { background: rgba(245,158,11,0.12);  color: #B45309; border: 1px solid rgba(245,158,11,0.3); }
+.status-inprogress { background: rgba(15,61,46,0.1);    color: #0F3D2E; border: 1px solid rgba(15,61,46,0.2); }
+
+.priority-badge {
+  display: inline-flex; align-items: center; gap: 0.25rem;
+  font-size: 0.7rem; font-weight: 700; padding: 0.22rem 0.55rem; border-radius: 999px; text-transform: uppercase;
+}
+.priority-high   { background: rgba(220,38,38,0.1);  color: #DC2626; border: 1px solid rgba(220,38,38,0.25); }
+.priority-medium { background: rgba(245,158,11,0.1); color: #B45309; border: 1px solid rgba(245,158,11,0.25); }
+.priority-low    { background: rgba(22,163,74,0.1);  color: #15803D; border: 1px solid rgba(22,163,74,0.25); }
+
+/* TOAST */
+.toast {
+  position: fixed; top: 1.2rem; right: 1.2rem;
+  background: #0F3D2E; color: #fff;
+  padding: 0.85rem 1.4rem; border-radius: 10px;
+  font-size: 0.88rem; font-weight: 500;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+  z-index: 9999; opacity: 0; pointer-events: none;
+  transform: translateY(-8px);
+  transition: opacity 0.3s, transform 0.3s;
+}
+.toast.visible { opacity: 1; transform: translateY(0); }
+
+/* StatusSummary div kept hidden for JS compat */
+#statusSummary { display: none; }
+#statusFilter { display: none; }
+
+@media (max-width: 900px) {
+  .kpi-row { grid-template-columns: repeat(2, 1fr); }
+  .cc-meta { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 480px) {
+  .kpi-row { grid-template-columns: 1fr 1fr; }
+  .cc-meta { grid-template-columns: 1fr; }
+}
+</style>
 </head>
-
 <body>
-<div class="container">
 
-  <div class="flex flex-col md:flex-row md:justify-between items-center mb-6">
-    <h2 class="text-2xl font-bold">
-      <i class="fa-solid fa-user-shield mr-2"></i>Admin Dashboard
-    </h2>
+<div class="admin-topbar">
+  <div class="brand">
+    <div class="brand-icon">CP</div>
+    <span>ComplaintPortal</span>
+  </div>
+  <div class="topbar-actions">
+    <div class="admin-badge"><i class="fa-solid fa-user-shield"></i> Admin</div>
+    <button onclick="clickSound.play(); logout()" class="btn-logout">
+      <i class="fa-solid fa-right-from-bracket"></i> Logout
+    </button>
+  </div>
+</div>
 
-    <button onclick="clickSound.play(); logout()" class="action-btn btn-red mt-4 md:mt-0">
-        <i class="fa-solid fa-right-from-bracket mr-1"></i>Logout
-      </button> 
+<div class="main-wrap">
+
+  <!-- KPI CARDS (clickable filters) -->
+  <div class="kpi-row" id="statusSummaryVisible">
+    <div class="kpi-card kpi-all active-filter" onclick="setFilter('')" id="kpi-all">
+      <div class="kpi-icon" style="background:rgba(15,61,46,0.08);color:#0F3D2E;"><i class="fa-solid fa-layer-group"></i></div>
+      <div><div class="kpi-val" id="count-all">0</div><div class="kpi-lbl">All Complaints</div></div>
+    </div>
+    <div class="kpi-card kpi-pending" onclick="setFilter('Pending')" id="kpi-Pending">
+      <div class="kpi-icon" style="background:rgba(245,158,11,0.1);color:#F59E0B;"><i class="fa-solid fa-hourglass-half"></i></div>
+      <div><div class="kpi-val" id="count-Pending">0</div><div class="kpi-lbl">Pending</div></div>
+    </div>
+    <div class="kpi-card kpi-resolved" onclick="setFilter('Resolved')" id="kpi-Resolved">
+      <div class="kpi-icon" style="background:rgba(22,163,74,0.1);color:#16A34A;"><i class="fa-solid fa-circle-check"></i></div>
+      <div><div class="kpi-val" id="count-Resolved">0</div><div class="kpi-lbl">Resolved</div></div>
+    </div>
+    <div class="kpi-card kpi-reopened" onclick="setFilter('Reopened')" id="kpi-Reopened">
+      <div class="kpi-icon" style="background:rgba(124,58,237,0.1);color:#7C3AED;"><i class="fa-solid fa-rotate-left"></i></div>
+      <div><div class="kpi-val" id="count-Reopened">0</div><div class="kpi-lbl">Reopened</div></div>
+    </div>
   </div>
 
-  <div class="card">
-    <h3 class="font-semibold mb-4">All Complaints</h3>
-    <div class="flex flex-wrap items-center gap-3 mb-4">
-      <input id="searchBox" onkeyup="renderComplaints()" placeholder="Search complaints..." class="flex-1 min-w-[220px] p-3 border rounded shadow-sm" />
-      <input type="hidden" id="statusFilter" value="" />
-      <div id="statusSummary" class="flex gap-2 ml-auto"></div>
+  <!-- CONTROLS -->
+  <div class="controls-bar">
+    <div class="search-wrap">
+      <i class="fa-solid fa-magnifying-glass search-icon"></i>
+      <input id="searchBox" onkeyup="renderComplaints()" placeholder="Search by title, resident, category...">
+    </div>
+    <input type="hidden" id="statusFilter" value="">
+    <div id="statusSummary"></div>
+    <span class="results-count" id="resultsCount">0 results</span>
+  </div>
+
+  <!-- COMPLAINTS PANEL -->
+  <div class="complaints-panel">
+    <div class="panel-head">
+      <div class="panel-head-icon"><i class="fa-solid fa-list-check"></i></div>
+      <h3>All Complaints</h3>
     </div>
     <div id="complaints"></div>
   </div>
+
 </div>
 
 <div id="toast" class="toast"></div>
@@ -37,137 +234,165 @@
 <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
 
 <script>
-  // 🔊 SOUND EFFECTS
-  let allComplaints = [];
-  const clickSound = new Audio("sounds/click.mp3");
-  const successSound = new Audio("sounds/success.mp3");
+let allComplaints = [];
+const clickSound = new Audio("sounds/click.mp3");
+const successSound = new Audio("sounds/success.mp3");
 
-  const token = localStorage.getItem("token");
-  if (!token) window.location.href = "login.html";
+const token = localStorage.getItem("token");
+if (!token) window.location.href = "login.html";
 
-  /* LOAD ALL COMPLAINTS */
-  async function loadComplaints() {
-    try {
-      const res = await fetch("http://localhost:5000/api/complaints/all", {
-        headers: { Authorization: "Bearer " + token }
-      });
+let currentStatusFilter = "";
 
-      if (res.status === 401 || res.status === 403) {
-        localStorage.clear();
-        window.location.href = "login.html";
-        return;
-      }
+function setFilter(status) {
+  currentStatusFilter = status;
+  document.getElementById("statusFilter").value = status;
+  document.querySelectorAll('.kpi-card').forEach(c => c.classList.remove('active-filter'));
+  const activeCard = document.getElementById('kpi-' + (status || 'all'));
+  if (activeCard) activeCard.classList.add('active-filter');
+  renderComplaints();
+}
 
-      if (!res.ok) {
-        const errorText = await res.text();
-        showToast("Unable to load complaints: " + (errorText || res.status));
-        allComplaints = [];
-        updateStatusSummary();
-        renderComplaints();
-        return;
-      }
+async function loadComplaints() {
+  try {
+    const res = await fetch("http://localhost:5000/api/complaints/all", {
+      headers: { Authorization: "Bearer " + token }
+    });
 
-      const complaints = await res.json();
-      allComplaints = Array.isArray(complaints) ? complaints : [];
+    if (res.status === 401 || res.status === 403) {
+      localStorage.clear();
+      window.location.href = "login.html";
+      return;
+    }
 
-      updateStatusSummary();
-      renderComplaints();
-    } catch (err) {
-      showToast("Server error loading complaints");
+    if (!res.ok) {
+      const errorText = await res.text();
+      showToast("Unable to load complaints: " + (errorText || res.status));
       allComplaints = [];
       updateStatusSummary();
       renderComplaints();
-    }
-  }
-
-  function renderComplaints() {
-    const searchBox = document.getElementById("searchBox");
-    const searchText = searchBox ? searchBox.value.trim().toLowerCase() : "";
-    const statusFilterEl = document.getElementById("statusFilter");
-    const statusFilter = statusFilterEl ? statusFilterEl.value : "";
-
-    const container = document.getElementById("complaints");
-    container.innerHTML = "";
-
-    if (!Array.isArray(allComplaints)) {
-      container.innerHTML = "<p class='text-red-600'>Unable to load complaints.</p>";
       return;
     }
 
-    const filtered = allComplaints.filter(c => {
-      const title = (c.title || "").toString().toLowerCase();
-      const description = (c.description || "").toString().toLowerCase();
-      const category = (c.category || "").toString().toLowerCase();
-      const residentName = (c.residentName || "").toString().toLowerCase();
-      const block = (c.block || "").toString().toLowerCase();
-      const phone = (c.phone || "").toString().toLowerCase();
-
-      const matchesSearch = !searchText ||
-        title.includes(searchText) ||
-        description.includes(searchText) ||
-        category.includes(searchText) ||
-        residentName.includes(searchText) ||
-        block.includes(searchText) ||
-        phone.includes(searchText);
-
-      const matchesStatus = !statusFilter || c.status === statusFilter;
-      return matchesSearch && matchesStatus;
-    });
-
-    if (filtered.length === 0) {
-      container.innerHTML = "<p class='text-gray-600'>No complaints found.</p>";
-      return;
-    }
-
-    filtered.forEach(c => {
-      const priorityClass = c.priority === "High" ? "border-red-500 bg-red-50" : "";
-      const statusClass = c.status === "Resolved" ? "bg-green-100 text-green-700" : c.status === "Pending" ? "bg-yellow-100 text-yellow-700" : "bg-blue-100 text-blue-700";
-
-      container.innerHTML += `
-        <div class="border p-4 mb-3 rounded card ${priorityClass} shadow hover:shadow-lg transition-all duration-150">
-          ${c.priority === "High" ? `<p class="text-red-600 font-bold">🚨 EMERGENCY</p>` : ""}
-          <p><b>Flat:</b> ${c.block}</p>
-          <p><b>Name:</b> ${c.residentName}</p>
-          <p><b>Phone:</b> ${c.phone}</p>
-          <p><b>Title:</b> ${c.title}</p>
-          <p><b>Category:</b> ${c.category}</p>
-          <p><b>Description:</b> ${c.description}</p>
-          ${c.image ? `<div class="mt-3"><img src="http://localhost:5000/uploads/${c.image}" alt="Complaint Image" class="max-w-full h-48 object-cover rounded-lg border shadow-sm cursor-pointer" onclick="openImageModal('http://localhost:5000/uploads/${c.image}')"></div>` : ""}
-          <p class="text-xs text-gray-500 mt-1">Submitted: ${formatTime(c.createdAt)}</p>
-
-          <span class="status-tag mt-2 ${c.status === 'Resolved' ? 'status-resolved' : c.status === 'Pending' ? 'status-pending' : 'status-inprogress'}">${c.status}</span>
-
-          ${c.feedback ? `
-            <p class="text-sm mt-2">⭐ ${c.feedback.rating}/5<br>💬 ${c.feedback.comment || "No comment"}</p>` : ""}
-
-          ${c.status !== "Resolved" ? `
-            <button onclick="successSound.play(); resolveComplaint('${c._id}')" class="ml-3 action-btn btn-blue">
-              <i class="fa-solid fa-check mr-1"></i>Resolve
-            </button>` : ""}
-        </div>
-      `;
-    });
-
+    const complaints = await res.json();
+    allComplaints = Array.isArray(complaints) ? complaints : [];
     updateStatusSummary();
+    renderComplaints();
+  } catch (err) {
+    showToast("Server error loading complaints");
+    allComplaints = [];
+    updateStatusSummary();
+    renderComplaints();
+  }
+}
+
+function renderComplaints() {
+  const searchBox = document.getElementById("searchBox");
+  const searchText = searchBox ? searchBox.value.trim().toLowerCase() : "";
+  const statusFilterEl = document.getElementById("statusFilter");
+  const statusFilter = statusFilterEl ? statusFilterEl.value : "";
+
+  const container = document.getElementById("complaints");
+  container.innerHTML = "";
+
+  if (!Array.isArray(allComplaints)) {
+    container.innerHTML = "<p class='text-red-600' style='padding:1.5rem;'>Unable to load complaints.</p>";
+    return;
   }
 
-  function updateStatusSummary() {
-    const summary = document.getElementById("statusSummary");
-    const total = allComplaints.length;
-    const pending = allComplaints.filter(c => c.status === "Pending").length;
-    const resolved = allComplaints.filter(c => c.status === "Resolved").length;
-    const reopened = allComplaints.filter(c => c.status === "Reopened").length;
+  const filtered = allComplaints.filter(c => {
+    const title = (c.title || "").toString().toLowerCase();
+    const description = (c.description || "").toString().toLowerCase();
+    const category = (c.category || "").toString().toLowerCase();
+    const residentName = (c.residentName || "").toString().toLowerCase();
+    const block = (c.block || "").toString().toLowerCase();
+    const phone = (c.phone || "").toString().toLowerCase();
 
-    const formatCard = (title, count, color, status) => `
-      <div class="p-2 rounded-lg border ${color} bg-white shadow-sm cursor-pointer status-card" data-status="${status}" style="min-width: 120px;">
-        <p class="text-xs uppercase text-gray-500">${title}</p>
-        <p class="text-lg font-bold">${count}</p>
-        <div class="h-1 mt-1 rounded-full bg-gray-200">
-          <div class="h-1 rounded-full" style="width: ${total ? (count / total * 100) : 0}%; background-color: ${color.replace('border-', '')};"></div>
+    const matchesSearch = !searchText ||
+      title.includes(searchText) || description.includes(searchText) ||
+      category.includes(searchText) || residentName.includes(searchText) ||
+      block.includes(searchText) || phone.includes(searchText);
+
+    const matchesStatus = !statusFilter || c.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
+
+  const countEl = document.getElementById("resultsCount");
+  if (countEl) countEl.textContent = filtered.length + (filtered.length === 1 ? " result" : " results");
+
+  if (filtered.length === 0) {
+    container.innerHTML = `<div class="empty-msg"><i class="fa-solid fa-inbox"></i><p>No complaints found matching your filters.</p></div>`;
+    return;
+  }
+
+  const statusClass = (s) => s === "Resolved" ? "status-resolved" : s === "Pending" ? "status-pending" : "status-inprogress";
+  const priorityClass = (p) => p === "High" ? "priority-high" : p === "Medium" ? "priority-medium" : "priority-low";
+  const catIcon = (cat) => {
+    const m = {Electrical:'⚡',Plumbing:'🚿',Lift:'🛗',Cleaning:'🧹',Security:'🚓'};
+    return m[cat] || '📋';
+  };
+
+  filtered.forEach(c => {
+    const div = document.createElement("div");
+    div.className = "complaint-card";
+
+    const imgHtml = c.image
+      ? `<div style="margin:0.5rem 0;"><img src="http://localhost:5000/uploads/${c.image}" alt="Complaint Image" style="max-width:100%;height:180px;object-fit:cover;border-radius:10px;border:1px solid #E2E8F0;cursor:pointer;" onclick="openImageModal('http://localhost:5000/uploads/${c.image}')"></div>` : "";
+
+    const feedbackHtml = c.feedback
+      ? `<div class="cc-feedback"><i class="fa-solid fa-star" style="color:#D4A017;"></i> ${c.feedback.rating}/5 &nbsp;·&nbsp; <i class="fa-solid fa-comment-dots" style="color:#64748B;"></i> ${c.feedback.comment || "No comment"}</div>` : "";
+
+    const resolveBtn = c.status !== "Resolved"
+      ? `<button onclick="successSound.play(); resolveComplaint('${c._id}')" class="btn-resolve"><i class="fa-solid fa-check"></i> Mark Resolved</button>` : "";
+
+    div.innerHTML = `
+      <div class="cc-top">
+        <div class="cc-title">
+          ${c.priority === "High" ? '<i class="fa-solid fa-triangle-exclamation" style="color:#DC2626;"></i>' : ""}
+          ${c.title}
+        </div>
+        <div class="cc-badges">
+          <span class="status-tag ${statusClass(c.status)}">${c.status}</span>
+          <span class="priority-badge ${priorityClass(c.priority)}">${c.priority}</span>
         </div>
       </div>
+      <div class="cc-meta">
+        <div class="cc-meta-item"><i class="fa-solid fa-building"></i> <b>Flat:</b> ${c.block}</div>
+        <div class="cc-meta-item"><i class="fa-solid fa-user"></i> <b>Name:</b> ${c.residentName}</div>
+        <div class="cc-meta-item"><i class="fa-solid fa-phone"></i> <b>Phone:</b> ${c.phone}</div>
+        <div class="cc-meta-item"><i class="fa-solid fa-tag"></i> <b>Category:</b> ${catIcon(c.category)} ${c.category}</div>
+        <div class="cc-meta-item"><i class="fa-solid fa-clock"></i> <b>Submitted:</b> ${formatTime(c.createdAt)}</div>
+      </div>
+      <div class="cc-desc"><i class="fa-solid fa-align-left" style="color:#94A3B8;margin-right:0.3rem;"></i>${c.description}</div>
+      ${imgHtml}
+      ${feedbackHtml}
+      <div class="cc-actions">${resolveBtn}</div>
     `;
+    container.appendChild(div);
+  });
 
+  updateStatusSummary();
+}
+
+function updateStatusSummary() {
+  const total = allComplaints.length;
+  const pending = allComplaints.filter(c => c.status === "Pending").length;
+  const resolved = allComplaints.filter(c => c.status === "Resolved").length;
+  const reopened = allComplaints.filter(c => c.status === "Reopened").length;
+
+  const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  set("count-all", total);
+  set("count-Pending", pending);
+  set("count-Resolved", resolved);
+  set("count-Reopened", reopened);
+
+  // Legacy compat: keep the old statusSummary content generation for any callers
+  const summary = document.getElementById("statusSummary");
+  if (summary) {
+    const formatCard = (title, count, color, status) => `
+      <div class="p-2 rounded-lg border ${color} bg-white shadow-sm cursor-pointer status-card" data-status="${status}" style="min-width:120px;display:none;">
+        <p class="text-xs uppercase text-gray-500">${title}</p>
+        <p class="text-lg font-bold">${count}</p>
+      </div>`;
     summary.innerHTML = "";
     summary.innerHTML += formatCard("All", total, "border-slate-400", "");
     summary.innerHTML += formatCard("Pending", pending, "border-yellow-500", "Pending");
@@ -177,89 +402,66 @@
     document.querySelectorAll('.status-card').forEach(card => {
       card.addEventListener('click', () => {
         const status = card.getAttribute('data-status');
-        document.getElementById('statusFilter').value = status;
-        renderComplaints();
-        document.querySelectorAll('.status-card').forEach(c => c.classList.remove('ring-2', 'ring-offset-2', 'ring-blue-500'));
-        card.classList.add('ring-2', 'ring-offset-2', 'ring-blue-500');
+        setFilter(status);
       });
     });
-
-    const activeStatus = document.getElementById('statusFilter').value;
-    document.querySelectorAll('.status-card').forEach(card => {
-      const status = card.getAttribute('data-status');
-      if ((activeStatus === '' && status === '') || activeStatus === status) {
-        card.classList.add('ring-2', 'ring-offset-2', 'ring-blue-500');
-      } else {
-        card.classList.remove('ring-2', 'ring-offset-2', 'ring-blue-500');
-      }
-    });
   }
+}
 
-  /* RESOLVE COMPLAINT */
-  async function resolveComplaint(id) {
-    await fetch(`http://localhost:5000/api/complaints/update/${id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + token
-      },
-      body: JSON.stringify({ status: "Resolved" })
-    });
-
-    showToast("Complaint resolved successfully");
-    loadComplaints(); // Refresh local view
-  }
-
-  /* 🔴 NEW: Toast function */
-  function showToast(msg) {
-    const toast = document.getElementById("toast");
-    toast.innerText = msg;
-    toast.classList.add("visible");
-    setTimeout(() => toast.classList.remove("visible"), 3000);
-  }
-
-  /* LOGOUT */
-  function logout() {
-    localStorage.clear();
-    window.location.href = "login.html";
-  }
-
-  /* INITIAL LOAD */
+async function resolveComplaint(id) {
+  await fetch(`http://localhost:5000/api/complaints/update/${id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
+    body: JSON.stringify({ status: "Resolved" })
+  });
+  showToast("Complaint resolved successfully");
   loadComplaints();
+}
 
-  /* 🔴 NEW: Real-time updates using Socket.IO */
-  const socket = io("http://localhost:5000");
-  socket.on("complaintUpdated", loadComplaints);
+function showToast(msg) {
+  const toast = document.getElementById("toast");
+  toast.innerText = msg;
+  toast.classList.add("visible");
+  setTimeout(() => toast.classList.remove("visible"), 3000);
+}
 
-  function formatTime(dateString) {
-    const date = new Date(dateString);
-    return date.toLocaleString("en-IN", {
-      hour: "2-digit",
-      minute: "2-digit",
-      day: "2-digit",
-      month: "short"
-    });
-  }
-  function searchComplaints() {
-    // Legacy helper for backwards compatibility; triggers full render, so filtering works correctly.
-    renderComplaints();
-  }
+function logout() {
+  localStorage.clear();
+  window.location.href = "login.html";
+}
 
-  /* Image Modal */
-  function openImageModal(imageSrc) {
-    const modal = document.createElement('div');
-    modal.className = 'fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50';
-    modal.innerHTML = `
-      <div class="relative max-w-4xl max-h-full p-4">
-        <img src="${imageSrc}" alt="Complaint Image" class="max-w-full max-h-full object-contain">
-        <button onclick="clickSound.play(); this.parentElement.parentElement.remove()" class="absolute top-2 right-2 bg-white text-black rounded-full w-8 h-8 flex items-center justify-center hover:bg-gray-200">
-          <i class="fas fa-times"></i>
-        </button>
-      </div>
-    `;
-    document.body.appendChild(modal);
-  }
+loadComplaints();
 
+const socket = io("http://localhost:5000");
+socket.on("complaintUpdated", loadComplaints);
+
+function formatTime(dateString) {
+  const date = new Date(dateString);
+  return date.toLocaleString("en-IN", {
+    hour: "2-digit", minute: "2-digit",
+    day: "2-digit", month: "short"
+  });
+}
+
+function searchComplaints() {
+  renderComplaints();
+}
+
+function openImageModal(imageSrc) {
+  const modal = document.createElement('div');
+  modal.className = 'fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.8);display:flex;align-items:center;justify-content:center;z-index:9999;backdrop-filter:blur(4px);';
+  modal.innerHTML = `
+    <div style="position:relative;max-width:90vw;max-height:90vh;">
+      <img src="${imageSrc}" alt="Complaint Image" style="max-width:100%;max-height:85vh;object-fit:contain;border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,0.4);">
+      <button onclick="clickSound.play(); this.parentElement.parentElement.remove()"
+        style="position:absolute;top:-14px;right:-14px;background:#fff;border:none;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.2);font-size:1rem;color:#1E293B;">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>`;
+  document.body.appendChild(modal);
+  modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
+}
 </script>
 
 </body>

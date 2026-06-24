@@ -1,21 +1,165 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Complaint Details</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Complaint Details — ComplaintPortal</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Inter', sans-serif;
+  background: #F0F4F8;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  color: #1E293B;
+}
+
+.top-bar {
+  background: #0F3D2E;
+  padding: 0 1.5rem;
+  height: 62px;
+  display: flex; align-items: center; justify-content: space-between;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.15);
+  position: sticky; top: 0; z-index: 50;
+}
+.brand { display: flex; align-items: center; gap: 0.6rem; }
+.brand-icon { width: 34px; height: 34px; background: #D4A017; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px; color: #1a1a1a; }
+.brand span { font-size: 0.9rem; font-weight: 700; color: #fff; }
+.back-btn {
+  background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+  color: rgba(255,255,255,0.85); padding: 0.42rem 0.9rem; border-radius: 8px;
+  font-size: 0.82rem; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif;
+  display: flex; align-items: center; gap: 0.4rem; transition: background 0.15s;
+}
+.back-btn:hover { background: rgba(255,255,255,0.18); }
+
+.main-wrap { max-width: 760px; margin: 0 auto; padding: 2rem 1rem; }
+
+/* PAGE HEADER */
+.page-header { margin-bottom: 1.75rem; }
+.page-badge {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  background: rgba(15,61,46,0.08); color: #0F3D2E;
+  font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.08em; padding: 0.28rem 0.75rem; border-radius: 999px;
+  margin-bottom: 0.6rem;
+}
+.page-header h1 { font-size: 1.5rem; font-weight: 800; color: #1E293B; letter-spacing: -0.02em; }
+
+/* INFO CARD */
+.info-card {
+  background: #fff; border: 1px solid #E2E8F0; border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05); overflow: hidden; margin-bottom: 1.25rem;
+}
+.card-head {
+  background: #0F3D2E; padding: 1rem 1.5rem;
+  display: flex; align-items: center; gap: 0.6rem;
+}
+.card-head h2 { color: #fff; font-size: 0.92rem; font-weight: 700; }
+.card-head-icon { width: 30px; height: 30px; background: rgba(255,255,255,0.12); border-radius: 7px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 0.85rem; }
+.card-body { padding: 1.5rem; }
+
+/* META GRID */
+.meta-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+.meta-item { }
+.meta-label { font-size: 0.72rem; font-weight: 700; color: #94A3B8; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.25rem; }
+.meta-value { font-size: 0.9rem; font-weight: 600; color: #1E293B; display: flex; align-items: center; gap: 0.4rem; }
+.meta-full { grid-column: 1 / -1; }
+.desc-box {
+  background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px;
+  padding: 1rem; font-size: 0.88rem; color: #374151; line-height: 1.6;
+}
+
+/* STATUS CARD */
+.status-section { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: 1.25rem; }
+.status-card-item {
+  background: #fff; border: 1px solid #E2E8F0; border-radius: 14px;
+  padding: 1.25rem; box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  position: relative; overflow: hidden;
+}
+.status-card-item::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+.status-current::before { background: #0F3D2E; }
+.status-timeline::before { background: #D4A017; }
+.sc-label { font-size: 0.72rem; font-weight: 700; color: #94A3B8; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.6rem; }
+.sc-value { font-size: 1.1rem; font-weight: 800; color: #1E293B; display: flex; align-items: center; gap: 0.5rem; }
+.sc-sub { font-size: 0.78rem; color: #64748B; margin-top: 0.35rem; }
+
+/* STATUS BADGES */
+.status-tag {
+  display: inline-flex; align-items: center; gap: 0.25rem;
+  font-size: 0.75rem; font-weight: 700; border-radius: 999px;
+  padding: 0.3rem 0.8rem; text-transform: uppercase; letter-spacing: 0.04em;
+}
+.status-resolved   { background: rgba(22,163,74,0.12);  color: #15803D; border: 1px solid rgba(22,163,74,0.25); }
+.status-pending    { background: rgba(245,158,11,0.12);  color: #B45309; border: 1px solid rgba(245,158,11,0.3); }
+.status-inprogress { background: rgba(15,61,46,0.1);    color: #0F3D2E; border: 1px solid rgba(15,61,46,0.2); }
+
+/* TIMELINE */
+.timeline { }
+.timeline-step { display: flex; gap: 1rem; position: relative; }
+.timeline-step:not(:last-child)::before {
+  content: ''; position: absolute; left: 15px; top: 32px;
+  width: 2px; height: calc(100% + 0.25rem);
+  background: #E2E8F0;
+}
+.tl-dot { width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 0.78rem; z-index: 1; }
+.tl-dot-done   { background: #0F3D2E; color: #fff; }
+.tl-dot-active { background: #D4A017; color: #1a1a1a; }
+.tl-dot-future { background: #E2E8F0; color: #94A3B8; }
+.tl-content { padding-bottom: 1.25rem; flex: 1; }
+.tl-title { font-size: 0.88rem; font-weight: 700; color: #1E293B; margin-bottom: 0.2rem; }
+.tl-sub { font-size: 0.78rem; color: #94A3B8; }
+
+/* FEEDBACK CARD */
+.feedback-card {
+  background: rgba(22,163,74,0.04); border: 1px solid rgba(22,163,74,0.2); border-radius: 14px;
+  padding: 1.25rem; margin-bottom: 1.25rem;
+}
+.fc-stars { display: flex; gap: 0.2rem; margin-bottom: 0.6rem; }
+.fc-star { color: #D4A017; font-size: 1.2rem; }
+.fc-comment { font-size: 0.88rem; color: #374151; line-height: 1.6; font-style: italic; }
+
+/* LOADING */
+.loading-state { text-align: center; padding: 4rem; color: #94A3B8; }
+.loading-state i { font-size: 2rem; display: block; margin-bottom: 0.75rem; opacity: 0.4; }
+
+/* DETAILS container used by JS */
+#details { }
+
+@media (max-width: 600px) {
+  .meta-grid { grid-template-columns: 1fr; }
+  .status-section { grid-template-columns: 1fr; }
+}
+</style>
 </head>
+<body>
 
-<body class="bg-gray-100 min-h-screen p-6">
-<div class="max-w-xl mx-auto bg-white p-6 rounded shadow">
-
-  <h2 class="text-xl font-bold mb-4">Complaint Details</h2>
-
-  <div id="details"></div>
-
-  <button onclick="clickSound.play(); window.history.back()"
-    class="mt-4 bg-gray-500 text-white px-4 py-2 rounded">
-    Back
+<div class="top-bar">
+  <div class="brand">
+    <div class="brand-icon">CP</div>
+    <span>ComplaintPortal</span>
+  </div>
+  <button onclick="clickSound.play(); window.history.back()" class="back-btn">
+    <i class="fa-solid fa-arrow-left"></i> Back
   </button>
+</div>
+
+<div class="main-wrap">
+  <div class="page-header">
+    <div class="page-badge"><i class="fa-solid fa-file-lines"></i> Complaint Record</div>
+    <h1>Complaint Details</h1>
+  </div>
+
+  <div id="details">
+    <div class="loading-state">
+      <i class="fa-solid fa-spinner fa-spin"></i>
+      <p>Loading complaint details...</p>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -30,11 +174,54 @@ const id = params.get("id");
 function formatTime(dateString) {
   const d = new Date(dateString);
   return d.toLocaleString("en-IN", {
-    day: "2-digit",
-    month: "short",
-    hour: "2-digit",
-    minute: "2-digit"
+    day: "2-digit", month: "short", year: "numeric",
+    hour: "2-digit", minute: "2-digit"
   });
+}
+
+function getStatusClass(status) {
+  if (status === "Resolved") return "status-resolved";
+  if (status === "Pending") return "status-pending";
+  return "status-inprogress";
+}
+
+function getStatusIcon(status) {
+  if (status === "Resolved") return "fa-circle-check";
+  if (status === "Pending") return "fa-hourglass-half";
+  return "fa-spinner";
+}
+
+function getCatIcon(cat) {
+  const m = {Electrical:'⚡',Plumbing:'🚿',Lift:'🛗',Cleaning:'🧹',Security:'🚓'};
+  return m[cat] || '📋';
+}
+
+function getTimelineDotClass(stepStatus, currentStatus) {
+  if (stepStatus === "done") return "tl-dot-done";
+  if (stepStatus === "active") return "tl-dot-active";
+  return "tl-dot-future";
+}
+
+function buildTimeline(status) {
+  const steps = [
+    { label: "Complaint Submitted", sub: "Your complaint has been registered.", done: true },
+    { label: "Under Admin Review", sub: "Admin is reviewing your complaint.", done: status !== "Pending" },
+    { label: "Resolution In Progress", sub: "Work is being carried out.", done: status === "Resolved" || status === "Reopened" },
+    { label: "Issue Resolved", sub: "The complaint has been closed.", done: status === "Resolved" },
+  ];
+
+  return steps.map((s, i) => {
+    const dotClass = s.done ? "tl-dot-done" : (i === steps.findIndex(x => !x.done) ? "tl-dot-active" : "tl-dot-future");
+    const icon = s.done ? "fa-check" : (dotClass === "tl-dot-active" ? "fa-ellipsis" : "fa-clock");
+    return `
+      <div class="timeline-step">
+        <div class="tl-dot ${dotClass}"><i class="fa-solid ${icon}" style="font-size:0.7rem;"></i></div>
+        <div class="tl-content">
+          <div class="tl-title" style="color:${s.done ? '#1E293B' : '#94A3B8'}">${s.label}</div>
+          <div class="tl-sub">${s.sub}</div>
+        </div>
+      </div>`;
+  }).join("");
 }
 
 async function loadDetails() {
@@ -44,29 +231,105 @@ async function loadDetails() {
 
   const c = await res.json();
 
+  const feedbackHtml = c.feedback ? `
+    <div class="info-card">
+      <div class="card-head" style="background:#16A34A;">
+        <div class="card-head-icon"><i class="fa-solid fa-star"></i></div>
+        <h2>User Feedback</h2>
+      </div>
+      <div class="card-body">
+        <div class="fc-stars">
+          ${Array.from({length:5},(_,i)=>`<span class="fc-star">${i < c.feedback.rating ? '★' : '☆'}</span>`).join('')}
+          <span style="font-size:0.82rem;color:#64748B;margin-left:0.5rem;line-height:1.6;">${c.feedback.rating}/5</span>
+        </div>
+        ${c.feedback.comment ? `<p class="fc-comment">"${c.feedback.comment}"</p>` : '<p style="font-size:0.85rem;color:#94A3B8;">No comment provided.</p>'}
+      </div>
+    </div>` : "";
+
   document.getElementById("details").innerHTML = `
-  <p><b>Flat:</b> ${c.block}</p>
-<p><b>Name:</b> ${c.residentName}</p>
-<p><b>Phone:</b> ${c.phone}</p>
-    <p><b>Title:</b> ${c.title}</p>
-    <p><b>Category:</b> ${c.category}</p>
-    <p><b>Description:</b> ${c.description}</p>
-    <p><b>Status:</b> ${c.status}</p>
-    <p class="text-sm text-gray-500">
-      Raised: ${formatTime(c.createdAt)}
-    </p>
-    ${
-      c.status === "Resolved"
-        ? `<p class="text-sm text-green-600">
-            Resolved: ${formatTime(c.updatedAt)}
-           </p>`
-        : ""
-    }
+    <!-- INFO CARD -->
+    <div class="info-card">
+      <div class="card-head">
+        <div class="card-head-icon"><i class="fa-solid fa-circle-info"></i></div>
+        <h2>Complaint Information</h2>
+      </div>
+      <div class="card-body">
+        <div class="meta-grid">
+          <div class="meta-item">
+            <div class="meta-label">Flat / Block</div>
+            <div class="meta-value"><i class="fa-solid fa-building" style="color:#94A3B8;"></i> ${c.block}</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Resident Name</div>
+            <div class="meta-value"><i class="fa-solid fa-user" style="color:#94A3B8;"></i> ${c.residentName}</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Phone</div>
+            <div class="meta-value"><i class="fa-solid fa-phone" style="color:#94A3B8;"></i> ${c.phone}</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Category</div>
+            <div class="meta-value">${getCatIcon(c.category)} ${c.category}</div>
+          </div>
+          <div class="meta-item meta-full">
+            <div class="meta-label">Title</div>
+            <div class="meta-value" style="font-size:1rem;">${c.title}</div>
+          </div>
+          <div class="meta-item meta-full">
+            <div class="meta-label">Description</div>
+            <div class="desc-box">${c.description}</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Raised On</div>
+            <div class="meta-value" style="font-size:0.83rem;"><i class="fa-solid fa-calendar" style="color:#94A3B8;"></i> ${formatTime(c.createdAt)}</div>
+          </div>
+          ${c.status === "Resolved" ? `
+          <div class="meta-item">
+            <div class="meta-label">Resolved On</div>
+            <div class="meta-value" style="font-size:0.83rem;color:#16A34A;"><i class="fa-solid fa-calendar-check"></i> ${formatTime(c.updatedAt)}</div>
+          </div>` : ""}
+        </div>
+      </div>
+    </div>
+
+    <!-- STATUS SECTION -->
+    <div class="status-section">
+      <div class="status-card-item status-current">
+        <div class="sc-label">Current Status</div>
+        <div class="sc-value">
+          <span class="status-tag ${getStatusClass(c.status)}">${c.status}</span>
+        </div>
+        <div class="sc-sub">Last updated ${formatTime(c.updatedAt)}</div>
+      </div>
+      <div class="status-card-item status-timeline">
+        <div class="sc-label">Priority Level</div>
+        <div class="sc-value">
+          ${c.priority === "High"
+            ? '<span style="background:rgba(220,38,38,0.1);color:#DC2626;border:1px solid rgba(220,38,38,0.25);padding:0.3rem 0.75rem;border-radius:999px;font-size:0.78rem;font-weight:700;">🚨 High</span>'
+            : c.priority === "Medium"
+            ? '<span style="background:rgba(245,158,11,0.1);color:#B45309;border:1px solid rgba(245,158,11,0.25);padding:0.3rem 0.75rem;border-radius:999px;font-size:0.78rem;font-weight:700;">⚡ Medium</span>'
+            : '<span style="background:rgba(22,163,74,0.1);color:#15803D;border:1px solid rgba(22,163,74,0.25);padding:0.3rem 0.75rem;border-radius:999px;font-size:0.78rem;font-weight:700;">✅ Low</span>'}
+        </div>
+        <div class="sc-sub">Priority assigned at submission</div>
+      </div>
+    </div>
+
+    <!-- TIMELINE -->
+    <div class="info-card">
+      <div class="card-head" style="background:#1E293B;">
+        <div class="card-head-icon"><i class="fa-solid fa-timeline"></i></div>
+        <h2>Resolution Timeline</h2>
+      </div>
+      <div class="card-body">
+        <div class="timeline">${buildTimeline(c.status)}</div>
+      </div>
+    </div>
+
+    ${feedbackHtml}
   `;
 }
 
 loadDetails();
 </script>
-
 </body>
 </html>

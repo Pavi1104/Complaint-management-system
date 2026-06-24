@@ -1,104 +1,377 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>User Dashboard</title>
-  <link rel="stylesheet" href="style.css">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- 🔴 NEW: Font Awesome Icons -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>User Dashboard — ComplaintPortal</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-.star {
-  color: gray;
-  font-size: 30px;
+body { background: #F0F4F8 !important; }
+
+.dash-top-bar {
+  background: #0F3D2E;
+  padding: 0 1.5rem;
+  height: 62px;
+  display: flex; align-items: center; justify-content: space-between;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.15);
+  position: sticky; top: 0; z-index: 50;
 }
-.star.active {
-  color: gold;
+.dash-brand { display: flex; align-items: center; gap: 0.6rem; }
+.dash-brand-icon { width: 34px; height: 34px; background: #D4A017; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px; color: #1a1a1a; }
+.dash-brand span { font-size: 0.9rem; font-weight: 700; color: #fff; }
+.dash-actions { display: flex; gap: 0.5rem; align-items: center; }
+.dash-btn {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  padding: 0.45rem 0.9rem; border-radius: 8px; border: none;
+  font-size: 0.82rem; font-weight: 600; cursor: pointer;
+  font-family: 'Inter', sans-serif; transition: filter 0.15s, transform 0.15s;
+}
+.dash-btn:hover { filter: brightness(1.08); transform: translateY(-1px); }
+.btn-history { background: rgba(255,255,255,0.12); color: #fff; border: 1px solid rgba(255,255,255,0.2); }
+.btn-logout { background: #DC2626; color: #fff; }
+.dash-user-tag {
+  background: rgba(212,160,23,0.15); border: 1px solid rgba(212,160,23,0.3);
+  color: #D4A017; padding: 0.3rem 0.75rem; border-radius: 999px;
+  font-size: 0.75rem; font-weight: 700; letter-spacing: 0.04em;
+  display: flex; align-items: center; gap: 0.4rem;
+}
+
+.main-content { max-width: 1100px; margin: 0 auto; padding: 1.75rem 1rem; }
+
+/* STATS */
+.stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.75rem; }
+.kpi-card {
+  background: #fff; border: 1px solid #E2E8F0; border-radius: 14px; padding: 1.25rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  display: flex; gap: 1rem; align-items: center;
+  transition: transform 0.2s, box-shadow 0.2s;
+  position: relative; overflow: hidden;
+}
+.kpi-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+.kpi-total::before  { background: #0F3D2E; }
+.kpi-pending::before { background: #F59E0B; }
+.kpi-progress::before { background: #3B82F6; }
+.kpi-resolved::before { background: #16A34A; }
+.kpi-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.08); }
+.kpi-icon { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; }
+.kpi-num { font-size: 1.6rem; font-weight: 800; color: #1E293B; line-height: 1; }
+.kpi-label { font-size: 0.75rem; color: #94A3B8; font-weight: 500; margin-top: 0.2rem; }
+
+/* TWO-COLUMN LAYOUT */
+.content-grid { display: grid; grid-template-columns: 1fr 1.1fr; gap: 1.5rem; }
+
+/* FORM CARD */
+.form-card { background: #fff; border: 1px solid #E2E8F0; border-radius: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); overflow: hidden; }
+.card-head {
+  background: #0F3D2E; padding: 1.1rem 1.5rem;
+  display: flex; align-items: center; gap: 0.6rem;
+}
+.card-head h3 { color: #fff; font-size: 0.95rem; font-weight: 700; }
+.card-head-icon { width: 32px; height: 32px; background: rgba(255,255,255,0.12); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 0.9rem; }
+.form-body { padding: 1.5rem; }
+.form-row { margin-bottom: 1rem; }
+.form-label { display: block; font-size: 0.78rem; font-weight: 600; color: #374151; margin-bottom: 0.35rem; letter-spacing: 0.01em; }
+.form-inp {
+  width: 100%; border: 1.5px solid #E2E8F0; border-radius: 8px;
+  padding: 0.65rem 0.85rem; font-size: 0.88rem; font-family: 'Inter', sans-serif;
+  color: #1E293B; background: #FAFAFA;
+  transition: border-color 0.2s, box-shadow 0.2s; outline: none;
+}
+.form-inp:focus { border-color: #0F3D2E; background: #fff; box-shadow: 0 0 0 3px rgba(15,61,46,0.1); }
+.form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+.photo-upload-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 1rem; }
+.upload-btn {
+  display: flex; align-items: center; justify-content: center; gap: 0.4rem;
+  padding: 0.6rem; border-radius: 8px; border: none;
+  font-size: 0.8rem; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif;
+  transition: filter 0.15s;
+}
+.upload-btn:hover { filter: brightness(1.06); }
+.upload-btn-cam { background: rgba(22,163,74,0.1); color: #15803D; border: 1.5px solid rgba(22,163,74,0.25); }
+.upload-btn-gal { background: rgba(59,130,246,0.1); color: #1D4ED8; border: 1.5px solid rgba(59,130,246,0.25); }
+.btn-submit {
+  width: 100%; background: #0F3D2E; color: #fff; padding: 0.8rem;
+  border-radius: 10px; border: none; font-size: 0.92rem; font-weight: 700;
+  cursor: pointer; font-family: 'Inter', sans-serif;
+  display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+  transition: filter 0.15s, transform 0.15s;
+}
+.btn-submit:hover { filter: brightness(1.1); transform: translateY(-1px); }
+
+/* COMPLAINTS LIST CARD */
+.list-card { background: #fff; border: 1px solid #E2E8F0; border-radius: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); overflow: hidden; }
+.list-body { padding: 0; }
+.complaint-item {
+  padding: 1.1rem 1.5rem;
+  border-bottom: 1px solid #F1F5F9;
+  transition: background 0.15s;
+}
+.complaint-item:last-child { border-bottom: none; }
+.complaint-item:hover { background: #FAFAFA; }
+.ci-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.4rem; }
+.ci-title { font-size: 0.9rem; font-weight: 700; color: #1E293B; }
+.ci-time { font-size: 0.72rem; color: #94A3B8; white-space: nowrap; margin-left: 0.5rem; }
+.ci-cat { font-size: 0.78rem; color: #64748B; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.4rem; }
+.ci-actions { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-top: 0.5rem; }
+.ci-btn {
+  padding: 0.3rem 0.65rem; border-radius: 6px; border: none;
+  font-size: 0.73rem; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif;
+  transition: filter 0.15s;
+}
+.ci-btn:hover { filter: brightness(1.08); }
+.ci-btn-blue { background: rgba(15,61,46,0.1); color: #0F3D2E; }
+.ci-btn-green { background: rgba(22,163,74,0.1); color: #15803D; }
+.ci-btn-purple { background: rgba(124,58,237,0.1); color: #7C3AED; }
+.ci-btn-red { background: rgba(220,38,38,0.1); color: #DC2626; }
+.feedback-text { font-size: 0.78rem; color: #16A34A; margin-top: 0.35rem; }
+.empty-state { text-align: center; padding: 3rem 1.5rem; color: #94A3B8; }
+.empty-state i { font-size: 2.5rem; margin-bottom: 0.75rem; display: block; opacity: 0.4; }
+.empty-state p { font-size: 0.88rem; }
+
+/* STAR RATING (keep as-is) */
+.star { color: #CBD5E1; font-size: 28px; cursor: pointer; transition: color 0.15s; }
+.star.active { color: #D4A017; }
+
+/* FEEDBACK MODAL */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(15,23,42,0.55);
+  backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.25s;
+}
+.modal-overlay.show { opacity: 1; pointer-events: auto; }
+.modal-card {
+  background: #fff; border-radius: 18px; padding: 2rem; width: min(460px, 94vw);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  transform: translateY(20px); transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+}
+.modal-overlay.show .modal-card { transform: translateY(0); }
+.modal-title { font-size: 1.1rem; font-weight: 800; color: #1E293B; margin-bottom: 0.4rem; }
+.modal-sub { font-size: 0.85rem; color: #64748B; margin-bottom: 1.25rem; }
+.btn-submit-feedback {
+  background: #0F3D2E; color: #fff; border: none;
+  padding: 0.7rem 1.4rem; border-radius: 8px; font-weight: 700;
+  font-family: 'Inter', sans-serif; font-size: 0.88rem; cursor: pointer;
+  transition: filter 0.15s;
+}
+.btn-submit-feedback:hover { filter: brightness(1.1); }
+
+/* CHATBOT */
+#chatBotWidget {
+  display: none;
+  position: fixed; bottom: 1.5rem; right: 1.5rem;
+  width: 340px; z-index: 50;
+  border-radius: 18px; overflow: hidden;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.18);
+  border: 1px solid #E2E8F0;
+}
+.chat-header {
+  background: #0F3D2E; padding: 0.9rem 1rem;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.chat-header-left { display: flex; align-items: center; gap: 0.6rem; }
+.chat-avatar { width: 32px; height: 32px; background: #D4A017; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #1a1a1a; font-size: 0.9rem; }
+.chat-header-info .chat-name { font-size: 0.88rem; font-weight: 700; color: #fff; }
+.chat-header-info .chat-status { font-size: 0.68rem; color: rgba(255,255,255,0.55); display: flex; align-items: center; gap: 0.3rem; }
+.chat-status-dot { width: 6px; height: 6px; border-radius: 50%; background: #4ADE80; }
+.chat-close-btn { background: rgba(255,255,255,0.1); border: none; width: 28px; height: 28px; border-radius: 7px; color: rgba(255,255,255,0.7); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; }
+.chat-close-btn:hover { background: rgba(255,255,255,0.2); }
+#chatContent { background: #F8FAFC; height: 300px; overflow-y: auto; padding: 1rem; }
+#chatMessages { display: flex; flex-direction: column; gap: 0.5rem; }
+.chat-input-area { background: #fff; padding: 0.75rem; display: flex; gap: 0.5rem; border-top: 1px solid #E2E8F0; }
+#chatInput {
+  flex: 1; border: 1.5px solid #E2E8F0; border-radius: 8px; padding: 0.6rem 0.85rem;
+  font-size: 0.85rem; font-family: 'Inter', sans-serif; outline: none; background: #FAFAFA;
+}
+#chatInput:focus { border-color: #0F3D2E; box-shadow: 0 0 0 3px rgba(15,61,46,0.08); }
+.chat-send-btn {
+  background: #0F3D2E; border: none; color: #fff; width: 36px; height: 36px;
+  border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  font-size: 0.85rem; transition: filter 0.15s; flex-shrink: 0;
+}
+.chat-send-btn:hover { filter: brightness(1.1); }
+
+#chatToggleBtn {
+  position: fixed; bottom: 1.5rem; right: 1.5rem;
+  background: #0F3D2E; color: #fff;
+  width: 52px; height: 52px; border-radius: 50%;
+  border: none; cursor: pointer; z-index: 49;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.2rem; box-shadow: 0 6px 20px rgba(15,61,46,0.4);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+#chatToggleBtn:hover { transform: scale(1.08); box-shadow: 0 8px 26px rgba(15,61,46,0.5); }
+
+/* IMAGE PREVIEW */
+#imagePreview { border: 1.5px solid #E2E8F0; border-radius: 8px; padding: 0.5rem; background: #FAFAFA; }
+
+@media (max-width: 900px) {
+  .content-grid { grid-template-columns: 1fr; }
+  .stats-row { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 480px) {
+  .stats-row { grid-template-columns: 1fr 1fr; }
+  .form-grid-2 { grid-template-columns: 1fr; }
+  #chatBotWidget { width: calc(100vw - 2rem); right: 1rem; }
 }
 </style>
-
 </head>
+<body>
 
-<body class="bg-gray-100 min-h-screen p-6">
-<div class="max-w-4xl mx-auto">
-  <div class="flex justify-between items-center mb-6">
-    <h2 class="text-2xl font-bold">
-  <i class="fa-solid fa-user mr-2"></i>User Dashboard
-</h2>
-
-    <div class="space-x-2">
-      <button onclick="window.location.href='user-history.html'" class="action-btn btn-purple">
-        <i class="fa-solid fa-clock-rotate-left mr-1"></i>History
-      </button>
-      <button onclick="clickSound.play(); logout()" class="action-btn btn-red">
-        <i class="fa-solid fa-right-from-bracket mr-1"></i>Logout
-      </button>
-    </div>
+<!-- TOP BAR -->
+<div class="dash-top-bar">
+  <div class="dash-brand">
+    <div class="dash-brand-icon">CP</div>
+    <span>ComplaintPortal</span>
   </div>
-
-<div class="card mb-6">
- <h3 class="font-semibold mb-4">Add Complaint</h3>
- <input id="block" placeholder="Block / Flat Number" class="w-full mb-3 p-2 border rounded">
-<input id="residentName" placeholder="Resident Name" class="w-full mb-3 p-2 border rounded">
-<input id="phone" placeholder="Phone Number" class="w-full mb-3 p-2 border rounded">
-
-<input id="title" placeholder="Title" class="w-full mb-3 p-2 border rounded">
-   <select id="category" onchange="checkOtherCategory()" class="w-full mb-3 p-2 border rounded">
-  <option value="">Select Category</option>
-  <option value="Electrical">Electrical ⚡</option>
-  <option value="Plumbing">Plumbing 🚿</option>
-  <option value="Lift">Lift 🛗</option>
-  <option value="Cleaning">Cleaning 🧹</option>
-  <option value="Security">Security 🚓</option>
-  <option value="Other">Other</option>
-</select>
-<select id="priority" class="w-full mb-3 p-2 border rounded">
-  <option value="Low">Low Priority</option>
-  <option value="Medium">Medium Priority</option>
-  <option value="High">High Priority 🚨</option>
-</select>
-
-<input id="otherCategory" placeholder="Enter category"
-class="w-full mb-3 p-2 border rounded hidden">
-    <textarea id="description" placeholder="Description" class="w-full mb-3 p-2 border rounded"></textarea>
-
-    <!-- Photo Upload Section -->
-    <div class="mb-4">
-      <label class="block text-sm font-medium text-gray-700 mb-2">Upload Photo (Optional)</label>
-      <div class="flex space-x-2">
-        <button type="button" onclick="clickSound.play(); openCamera()" class="flex-1 bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 transition duration-200 flex items-center justify-center">
-          <i class="fas fa-camera mr-2"></i>Take Photo
-        </button>
-        <button type="button" onclick="clickSound.play(); openGallery()" class="flex-1 bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition duration-200 flex items-center justify-center">
-          <i class="fas fa-images mr-2"></i>From Gallery
-        </button>
-      </div>
-      <input type="file" id="imageInput" accept="image/*" capture="environment" class="hidden">
-      <div id="imagePreview" class="mt-2 hidden">
-        <img id="previewImg" class="max-w-full h-32 object-cover rounded-lg border">
-        <button type="button" onclick="clickSound.play(); removeImage()" class="mt-1 text-red-500 text-sm hover:text-red-700">
-          <i class="fas fa-times mr-1"></i>Remove
-        </button>
-      </div>
-    </div>
-
- <button onclick="successSound.play(); addComplaint()"
-  class="primary-btn btn-blue">
-  <i class="fa-solid fa-paper-plane mr-1"></i>Submit
-</button>
-
-  </div>
- <div class="card">
-    <h3 class="font-semibold mb-4">Current Complaints</h3>
-    <ul id="complaints" class="space-y-2"></ul>
+  <div class="dash-actions">
+    <div class="dash-user-tag"><i class="fa-solid fa-user"></i> User</div>
+    <button onclick="window.location.href='user-history.html'" class="dash-btn btn-history">
+      <i class="fa-solid fa-clock-rotate-left"></i> History
+    </button>
+    <button onclick="clickSound.play(); logout()" class="dash-btn btn-logout">
+      <i class="fa-solid fa-right-from-bracket"></i> Logout
+    </button>
   </div>
 </div>
+
+<div class="main-content">
+
+  <!-- KPI STATS -->
+  <div class="stats-row" id="statsRow">
+    <div class="kpi-card kpi-total">
+      <div class="kpi-icon" style="background:rgba(15,61,46,0.08);color:#0F3D2E;"><i class="fa-solid fa-file-lines"></i></div>
+      <div><div class="kpi-num" id="kpiTotal">0</div><div class="kpi-label">Total Complaints</div></div>
+    </div>
+    <div class="kpi-card kpi-pending">
+      <div class="kpi-icon" style="background:rgba(245,158,11,0.1);color:#F59E0B;"><i class="fa-solid fa-hourglass-half"></i></div>
+      <div><div class="kpi-num" id="kpiPending">0</div><div class="kpi-label">Pending</div></div>
+    </div>
+    <div class="kpi-card kpi-progress">
+      <div class="kpi-icon" style="background:rgba(59,130,246,0.1);color:#3B82F6;"><i class="fa-solid fa-spinner"></i></div>
+      <div><div class="kpi-num" id="kpiProgress">0</div><div class="kpi-label">In Progress</div></div>
+    </div>
+    <div class="kpi-card kpi-resolved">
+      <div class="kpi-icon" style="background:rgba(22,163,74,0.1);color:#16A34A;"><i class="fa-solid fa-circle-check"></i></div>
+      <div><div class="kpi-num" id="kpiResolved">0</div><div class="kpi-label">Resolved</div></div>
+    </div>
+  </div>
+
+  <!-- MAIN GRID -->
+  <div class="content-grid">
+
+    <!-- COMPLAINT FORM -->
+    <div class="form-card">
+      <div class="card-head">
+        <div class="card-head-icon"><i class="fa-solid fa-plus"></i></div>
+        <h3>Submit New Complaint</h3>
+      </div>
+      <div class="form-body">
+
+        <div class="form-grid-2">
+          <div class="form-row">
+            <label class="form-label">Block / Flat Number</label>
+            <input id="block" placeholder="e.g. A-204" class="form-inp">
+          </div>
+          <div class="form-row">
+            <label class="form-label">Resident Name</label>
+            <input id="residentName" placeholder="Full name" class="form-inp">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <label class="form-label">Phone Number</label>
+          <input id="phone" placeholder="Mobile number" class="form-inp">
+        </div>
+
+        <div class="form-row">
+          <label class="form-label">Complaint Title</label>
+          <input id="title" placeholder="Brief title for the complaint" class="form-inp">
+        </div>
+
+        <div class="form-grid-2">
+          <div class="form-row">
+            <label class="form-label">Category</label>
+            <select id="category" onchange="checkOtherCategory()" class="form-inp">
+              <option value="">Select Category</option>
+              <option value="Electrical">Electrical ⚡</option>
+              <option value="Plumbing">Plumbing 🚿</option>
+              <option value="Lift">Lift 🛗</option>
+              <option value="Cleaning">Cleaning 🧹</option>
+              <option value="Security">Security 🚓</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label class="form-label">Priority</label>
+            <select id="priority" class="form-inp">
+              <option value="Low">Low Priority</option>
+              <option value="Medium">Medium Priority</option>
+              <option value="High">High Priority 🚨</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row" id="otherCategoryRow" style="display:none;">
+          <label class="form-label">Specify Category</label>
+          <input id="otherCategory" placeholder="Enter category" class="form-inp hidden">
+        </div>
+
+        <div class="form-row">
+          <label class="form-label">Description</label>
+          <textarea id="description" placeholder="Describe the issue in detail..." class="form-inp" rows="3" style="resize:vertical;"></textarea>
+        </div>
+
+        <!-- Photo Upload -->
+        <div class="form-row">
+          <label class="form-label">Attach Photo (Optional)</label>
+          <div class="photo-upload-row">
+            <button type="button" onclick="clickSound.play(); openCamera()" class="upload-btn upload-btn-cam">
+              <i class="fas fa-camera"></i> Take Photo
+            </button>
+            <button type="button" onclick="clickSound.play(); openGallery()" class="upload-btn upload-btn-gal">
+              <i class="fas fa-images"></i> From Gallery
+            </button>
+          </div>
+          <input type="file" id="imageInput" accept="image/*" capture="environment" class="hidden">
+          <div id="imagePreview" class="mt-2 hidden">
+            <img id="previewImg" class="max-w-full h-32 object-cover rounded-lg border" alt="preview">
+            <button type="button" onclick="clickSound.play(); removeImage()" class="mt-1 text-sm" style="color:#DC2626;background:none;border:none;cursor:pointer;font-family:'Inter',sans-serif;font-weight:600;">
+              <i class="fas fa-times mr-1"></i>Remove
+            </button>
+          </div>
+        </div>
+
+        <button onclick="successSound.play(); addComplaint()" class="btn-submit">
+          <i class="fa-solid fa-paper-plane"></i> Submit Complaint
+        </button>
+
+      </div>
+    </div>
+
+    <!-- COMPLAINTS LIST -->
+    <div class="list-card">
+      <div class="card-head">
+        <div class="card-head-icon"><i class="fa-solid fa-list-check"></i></div>
+        <h3>My Current Complaints</h3>
+      </div>
+      <div class="list-body">
+        <ul id="complaints" style="list-style:none;padding:0;margin:0;"></ul>
+      </div>
+    </div>
+
+  </div>
+</div>
+
 <div id="toast" class="toast"></div>
 
-<!-- Socket.IO client MUST be here -->
 <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
 
 <script>
-  // 🔊 SOUND EFFECTS
 const clickSound = new Audio("sounds/click.mp3");
 const successSound = new Audio("sounds/success.mp3");
 
@@ -107,40 +380,62 @@ if (!token) window.location.href = "login.html";
 
 let allUserComplaints = [];
 
-// 🔥 SOCKET.IO LIVE UPDATE
 const socket = io("http://localhost:5000");
 socket.on("complaintUpdated", loadComplaints);
 
+function updateKPIs(complaints) {
+  document.getElementById("kpiTotal").textContent = complaints.length;
+  document.getElementById("kpiPending").textContent = complaints.filter(c => c.status === "Pending").length;
+  document.getElementById("kpiProgress").textContent = complaints.filter(c => c.status === "In Progress" || c.status === "Reopened").length;
+  document.getElementById("kpiResolved").textContent = complaints.filter(c => c.status === "Resolved").length;
+}
+
+function getCategoryIcon(cat) {
+  const icons = { Electrical: '⚡', Plumbing: '🚿', Lift: '🛗', Cleaning: '🧹', Security: '🚓' };
+  return icons[cat] || '📋';
+}
+
+function getStatusClass(status) {
+  if (status === "Resolved") return "status-resolved";
+  if (status === "Pending") return "status-pending";
+  return "status-inprogress";
+}
+
 function createComplaintListItem(c, includeActions = true) {
   const li = document.createElement("li");
-  li.className = "complaint-entry";
+  li.className = "complaint-item";
+
+  const feedbackHtml = c.status === "Resolved" && c.feedback
+    ? `<div class="feedback-text"><i class="fa-solid fa-star" style="color:#D4A017;"></i> ${c.feedback.rating}/5 — ${c.feedback.comment || "No comment"}</div>` : "";
+
+  const actionHtml = includeActions ? `
+    <div class="ci-actions">
+      <button onclick="clickSound.play(); window.location.href='complaint-details.html?id=${c._id}'" class="ci-btn ci-btn-blue"><i class="fa-solid fa-eye mr-1"></i>Details</button>
+      <button onclick="clickSound.play(); editComplaint('${c._id}')" class="ci-btn ci-btn-green"><i class="fa-solid fa-pen mr-1"></i>Edit</button>
+      ${c.status === "Resolved" && !c.feedback ? `<button onclick="clickSound.play(); openFeedback('${c._id}')" class="ci-btn ci-btn-purple"><i class="fa-solid fa-star mr-1"></i>Rate</button>` : ""}
+      ${c.status === "Resolved" ? `<button onclick="clickSound.play(); reopenComplaint('${c._id}')" class="ci-btn ci-btn-red"><i class="fa-solid fa-rotate-left mr-1"></i>Reopen</button>` : ""}
+    </div>` : `
+    <div class="ci-actions">
+      <button onclick="clickSound.play(); window.location.href='complaint-details.html?id=${c._id}'" class="ci-btn ci-btn-blue"><i class="fa-solid fa-eye mr-1"></i>Details</button>
+    </div>`;
+
   li.innerHTML = `
-    <div class="flex justify-between items-center">
-      <span class="font-medium">${c.title}</span>
-      <span class="text-xs text-gray-500">${formatTime(c.createdAt)}</span>
+    <div class="ci-top">
+      <div class="ci-title">${c.title}</div>
+      <div class="ci-time">${formatTime(c.createdAt)}</div>
     </div>
-
-    <p class="text-sm text-gray-700">${c.category}</p>
-    <span class="status-tag mt-1 ${
-      c.status === "Resolved" ? "status-resolved" : c.status === "Pending" ? "status-pending" : "status-inprogress"
-    }">
-      ${c.status}
-    </span>
-
-    ${c.status === "Resolved" && c.feedback ? `<p class="text-sm mt-1 text-green-700">⭐ ${c.feedback.rating}/5 - ${c.feedback.comment || "No comment"}</p>` : ""}
-
-    <div class="mt-2">
-      <button onclick="clickSound.play(); window.location.href='complaint-details.html?id=${c._id}'" class="action-btn btn-blue mr-2">Details</button>
-      ${includeActions ? `<button onclick="clickSound.play(); editComplaint('${c._id}')" class="action-btn btn-green mr-2">Edit</button>` : ""}
-      ${includeActions && c.status === "Resolved" && !c.feedback ? `<button onclick="clickSound.play(); openFeedback('${c._id}')" class="action-btn btn-purple mr-2">Feedback</button>` : ""}
-      ${includeActions && c.status === "Resolved" ? `<button onclick="clickSound.play(); reopenComplaint('${c._id}')" class="action-btn btn-red">Reopen</button>` : ""}
+    <div class="ci-cat">${getCategoryIcon(c.category)} ${c.category} &nbsp;·&nbsp; <span class="status-tag ${getStatusClass(c.status)}">${c.status}</span>
+      ${c.priority === "High" ? `&nbsp;<span class="status-tag" style="background:rgba(220,38,38,0.1);color:#DC2626;border-color:rgba(220,38,38,0.25);">🚨 High</span>` : ""}
     </div>
+    ${feedbackHtml}
+    ${actionHtml}
   `;
   return li;
 }
 
 function renderHistoryComplaints() {
   const historyList = document.getElementById("historyComplaints");
+  if (!historyList) return;
   const filter = document.getElementById("historyFilter").value;
 
   let historyItems = [...allUserComplaints];
@@ -164,13 +459,17 @@ async function loadComplaints() {
 
   const data = await res.json();
   allUserComplaints = data.slice();
+  updateKPIs(allUserComplaints);
 
   const list = document.getElementById("complaints");
   list.innerHTML = "";
 
-  const currentComplaints = allUserComplaints
-    .slice()
-    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  const currentComplaints = allUserComplaints.slice().sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+  if (currentComplaints.length === 0) {
+    list.innerHTML = `<div class="empty-state"><i class="fa-solid fa-inbox"></i><p>No complaints yet.<br>Submit your first complaint using the form.</p></div>`;
+    return;
+  }
 
   currentComplaints.forEach(c => {
     const li = createComplaintListItem(c, true);
@@ -198,30 +497,12 @@ async function addComplaint() {
 
   console.log("Values:", {block, residentName, phone, title, category, priority, description});
 
-  if (!block) {
-    showToast("Block / Flat Number is required");
-    return;
-  }
-  if (!residentName) {
-    showToast("Resident Name is required");
-    return;
-  }
-  if (!phone) {
-    showToast("Phone Number is required");
-    return;
-  }
-  if (!title) {
-    showToast("Title is required");
-    return;
-  }
-  if (!category) {
-    showToast("Category is required");
-    return;
-  }
-  if (!description) {
-    showToast("Description is required");
-    return;
-  }
+  if (!block) { showToast("Block / Flat Number is required"); return; }
+  if (!residentName) { showToast("Resident Name is required"); return; }
+  if (!phone) { showToast("Phone Number is required"); return; }
+  if (!title) { showToast("Title is required"); return; }
+  if (!category) { showToast("Category is required"); return; }
+  if (!description) { showToast("Description is required"); return; }
 
   try {
     console.log("Sending fetch");
@@ -241,17 +522,14 @@ async function addComplaint() {
 
     const res = await fetch("http://localhost:5000/api/complaints/add", {
       method: "POST",
-      headers: {
-        Authorization: "Bearer " + token
-      },
+      headers: { Authorization: "Bearer " + token },
       body: formData
     });
 
     console.log("Response status:", res.status);
     if (res.ok) {
-      showToast("Complaint added successfully");
+      showToast("Complaint submitted successfully");
       loadComplaints();
-      // Clear the form
       document.getElementById("block").value = "";
       document.getElementById("residentName").value = "";
       document.getElementById("phone").value = "";
@@ -260,7 +538,6 @@ async function addComplaint() {
       document.getElementById("otherCategory").value = "";
       document.getElementById("priority").value = "Low";
       document.getElementById("description").value = "";
-      // Clear image
       document.getElementById("imageInput").value = "";
       document.getElementById("imagePreview").classList.add("hidden");
     } else {
@@ -301,7 +578,7 @@ function submitFeedback() {
     },
     body: JSON.stringify({ rating: stars, comment })
   }).then(() => {
-    showToast("Feedback submitted");
+    showToast("Feedback submitted!");
     document.getElementById("feedbackModal").classList.remove("show");
     loadComplaints();
   });
@@ -317,10 +594,8 @@ function showToast(msg) {
 function formatTime(dateString) {
   const date = new Date(dateString);
   return date.toLocaleString("en-IN", {
-    hour: "2-digit",
-    minute: "2-digit",
-    day: "2-digit",
-    month: "short"
+    hour: "2-digit", minute: "2-digit",
+    day: "2-digit", month: "short"
   });
 }
 
@@ -330,30 +605,31 @@ function logout() {
 }
 
 loadComplaints();
+
 document.addEventListener("DOMContentLoaded", function () {
   document.querySelectorAll(".star").forEach(star => {
     star.addEventListener("click", function () {
       const value = this.getAttribute("data-value");
       const stars = document.querySelectorAll(".star");
-
       stars.forEach(s => s.classList.remove("active"));
-
-      for (let i = 0; i < value; i++) {
-        stars[i].classList.add("active");
-      }
+      for (let i = 0; i < value; i++) { stars[i].classList.add("active"); }
     });
   });
 });
+
 function checkOtherCategory() {
   const category = document.getElementById("category").value;
   const otherInput = document.getElementById("otherCategory");
-
+  const otherRow = document.getElementById("otherCategoryRow");
   if (category === "Other") {
     otherInput.classList.remove("hidden");
+    if (otherRow) otherRow.style.display = "block";
   } else {
     otherInput.classList.add("hidden");
+    if (otherRow) otherRow.style.display = "none";
   }
 }
+
 function editComplaint(id) {
   const block = prompt("Edit Flat Number:");
   const residentName = prompt("Edit Name:");
@@ -364,39 +640,19 @@ function editComplaint(id) {
 
   fetch(`http://localhost:5000/api/complaints/edit/${id}`, {
     method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: "Bearer " + token
-    },
-    body: JSON.stringify({
-      block,
-      residentName,
-      phone,
-      title,
-      category,
-      description
-    })
-  }).then(() => {
-    showToast("Complaint updated");
-    loadComplaints();
-  });
+    headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
+    body: JSON.stringify({ block, residentName, phone, title, category, description })
+  }).then(() => { showToast("Complaint updated"); loadComplaints(); });
 }
 
 function reopenComplaint(id) {
   fetch(`http://localhost:5000/api/complaints/update/${id}`, {
     method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: "Bearer " + token
-    },
+    headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
     body: JSON.stringify({ status: "Reopened" })
-  }).then(() => {
-    showToast("Complaint reopened");
-    loadComplaints();
-  });
+  }).then(() => { showToast("Complaint reopened"); loadComplaints(); });
 }
 
-// Chatbot logic
 function toggleChatBot() {
   const widget = document.getElementById("chatBotWidget");
   const toggle = document.getElementById("chatToggleBtn");
@@ -405,15 +661,17 @@ function toggleChatBot() {
     toggle.style.display = "none";
   } else {
     widget.style.display = "none";
-    toggle.style.display = "block";
+    toggle.style.display = "flex";
   }
 }
 
 function appendChatMessage(role, text) {
   const chatMessages = document.getElementById("chatMessages");
   const bubble = document.createElement("div");
-  bubble.className = role === "user" ? "text-right mb-2" : "text-left mb-2";
-  bubble.innerHTML = `<span class="inline-block px-3 py-2 rounded-xl ${role === "user" ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-800"}">${text}</span>`;
+  bubble.style.cssText = role === "user"
+    ? "display:flex;justify-content:flex-end;margin-bottom:4px;"
+    : "display:flex;justify-content:flex-start;margin-bottom:4px;";
+  bubble.innerHTML = `<span style="display:inline-block;padding:0.5rem 0.85rem;border-radius:12px;max-width:80%;font-size:0.83rem;line-height:1.5;font-family:'Inter',sans-serif;${role === "user" ? "background:#0F3D2E;color:#fff;border-bottom-right-radius:3px;" : "background:#fff;color:#1E293B;border:1px solid #E2E8F0;border-bottom-left-radius:3px;box-shadow:0 1px 3px rgba(0,0,0,0.06);"}">${text}</span>`;
   chatMessages.appendChild(bubble);
   chatMessages.parentElement.scrollTop = chatMessages.parentElement.scrollHeight;
 }
@@ -421,11 +679,13 @@ function appendChatMessage(role, text) {
 function checkOtherCategory() {
   const category = document.getElementById("category").value;
   const otherInput = document.getElementById("otherCategory");
-
+  const otherRow = document.getElementById("otherCategoryRow");
   if (category === "Other") {
     otherInput.classList.remove("hidden");
+    if (otherRow) otherRow.style.display = "block";
   } else {
     otherInput.classList.add("hidden");
+    if (otherRow) otherRow.style.display = "none";
   }
 }
 
@@ -439,39 +699,19 @@ function editComplaint(id) {
 
   fetch(`http://localhost:5000/api/complaints/edit/${id}`, {
     method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: "Bearer " + token
-    },
-    body: JSON.stringify({
-      block,
-      residentName,
-      phone,
-      title,
-      category,
-      description
-    })
-  }).then(() => {
-    showToast("Complaint updated");
-    loadComplaints();
-  });
+    headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
+    body: JSON.stringify({ block, residentName, phone, title, category, description })
+  }).then(() => { showToast("Complaint updated"); loadComplaints(); });
 }
 
 function reopenComplaint(id) {
   fetch(`http://localhost:5000/api/complaints/update/${id}`, {
     method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: "Bearer " + token
-    },
+    headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
     body: JSON.stringify({ status: "Reopened" })
-  }).then(() => {
-    showToast("Complaint reopened");
-    loadComplaints();
-  });
+  }).then(() => { showToast("Complaint reopened"); loadComplaints(); });
 }
 
-// Chatbot logic
 function toggleChatBot() {
   const widget = document.getElementById("chatBotWidget");
   const toggle = document.getElementById("chatToggleBtn");
@@ -480,7 +720,7 @@ function toggleChatBot() {
     toggle.style.display = "none";
   } else {
     widget.style.display = "none";
-    toggle.style.display = "block";
+    toggle.style.display = "flex";
   }
 }
 
@@ -489,16 +729,13 @@ async function sendChat(message) {
   if (!token || !message) return;
 
   appendChatMessage("user", message);
-  appendChatMessage("bot", "Processing...");
+  appendChatMessage("bot", '<span style="opacity:0.5;">Typing<span class="dots">...</span></span>');
   const botMessageEl = document.getElementById("chatMessages").lastChild;
 
   try {
     const resp = await fetch("http://localhost:5000/api/chatbot/complaint", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + token
-      },
+      headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
       body: JSON.stringify({ message })
     });
     const data = await resp.json();
@@ -518,7 +755,6 @@ async function sendChat(message) {
 document.addEventListener("DOMContentLoaded", function () {
   const inputEl = document.getElementById("chatInput");
   if (!inputEl) return;
-
   inputEl.addEventListener("keypress", function(event) {
     if (event.key === "Enter") {
       const message = inputEl.value.trim();
@@ -528,7 +764,6 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 
-// Photo upload functions
 function openCamera() {
   const input = document.getElementById("imageInput");
   input.setAttribute("capture", "environment");
@@ -546,7 +781,6 @@ function removeImage() {
   document.getElementById("imagePreview").classList.add("hidden");
 }
 
-// Handle image selection and preview
 document.getElementById("imageInput").addEventListener("change", function(e) {
   const file = e.target.files[0];
   if (file) {
@@ -558,49 +792,67 @@ document.getElementById("imageInput").addEventListener("change", function(e) {
     reader.readAsDataURL(file);
   }
 });
-
 </script>
+
+<!-- FEEDBACK MODAL -->
 <div id="feedbackModal" class="modal-overlay">
   <div class="modal-card">
-    <h3 class="text-lg font-semibold mb-3">Rate your experience</h3>
-
-    <div id="stars" class="text-2xl mb-3">
+    <div class="modal-title">Rate Your Experience</div>
+    <div class="modal-sub">How satisfied are you with the complaint resolution?</div>
+    <div id="stars" style="display:flex;gap:0.25rem;margin-bottom:1rem;">
       <span class="star cursor-pointer" data-value="1">★</span>
       <span class="star cursor-pointer" data-value="2">★</span>
       <span class="star cursor-pointer" data-value="3">★</span>
       <span class="star cursor-pointer" data-value="4">★</span>
       <span class="star cursor-pointer" data-value="5">★</span>
     </div>
-
-    <textarea id="feedbackComment" placeholder="Write feedback"
-      class="w-full border p-2 rounded mb-3"></textarea>
-
-    <button onclick="clickSound.play(); submitFeedback()"
-      class="bg-indigo-600 text-white px-4 py-2 rounded">Submit</button>
-  </div>
-</div>
-
-<!-- Chatbot widget -->
-<div id="chatBotWidget" class="fixed bottom-5 right-5 w-80 z-50" style="display: none;">
-  <div class="bg-white border border-gray-300 rounded-xl shadow-lg overflow-hidden">
-    <div class="flex items-center justify-between bg-blue-600 text-white px-3 py-2">
-      <span class="font-semibold">Support Bot</span>
-      <button onclick="clickSound.play(); toggleChatBot()" class="text-white text-sm font-bold">✕</button>
-    </div>
-    <div id="chatContent" class="h-64 overflow-y-auto p-3 bg-gray-100 text-sm">
-      <div id="chatMessages"></div>
-    </div>
-    <div class="p-3 bg-white">
-      <input id="chatInput" type="text" placeholder="Describe your issue..." class="w-full p-2 border rounded mb-2" />
-      <button onclick="clickSound.play(); sendChat()" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition">
-        Send
+    <textarea id="feedbackComment" placeholder="Share your experience (optional)" rows="3"
+      style="width:100%;border:1.5px solid #E2E8F0;border-radius:8px;padding:0.7rem;font-family:'Inter',sans-serif;font-size:0.88rem;outline:none;resize:vertical;margin-bottom:1rem;background:#FAFAFA;color:#1E293B;"></textarea>
+    <div style="display:flex;gap:0.6rem;">
+      <button onclick="clickSound.play(); submitFeedback()" class="btn-submit-feedback">
+        <i class="fa-solid fa-paper-plane mr-1"></i> Submit Feedback
+      </button>
+      <button onclick="document.getElementById('feedbackModal').classList.remove('show')"
+        style="background:#F1F5F9;color:#64748B;border:none;padding:0.7rem 1.1rem;border-radius:8px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;font-size:0.88rem;">
+        Cancel
       </button>
     </div>
   </div>
 </div>
 
-<button id="chatToggleBtn" onclick="clickSound.play(); toggleChatBot()" class="fixed bottom-5 right-5 bg-blue-600 text-white rounded-full p-3 shadow-xl z-40">
-  💬
+<!-- CHATBOT WIDGET -->
+<div id="chatBotWidget" style="display:none;">
+  <div class="chat-header">
+    <div class="chat-header-left">
+      <div class="chat-avatar"><i class="fa-solid fa-robot"></i></div>
+      <div class="chat-header-info">
+        <div class="chat-name">Support Assistant</div>
+        <div class="chat-status"><span class="chat-status-dot"></span> Online</div>
+      </div>
+    </div>
+    <button onclick="clickSound.play(); toggleChatBot()" class="chat-close-btn">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+  <div id="chatContent">
+    <div id="chatMessages">
+      <div style="display:flex;justify-content:flex-start;margin-bottom:4px;">
+        <span style="display:inline-block;padding:0.5rem 0.85rem;border-radius:12px;border-bottom-left-radius:3px;max-width:80%;font-size:0.83rem;line-height:1.5;font-family:'Inter',sans-serif;background:#fff;color:#1E293B;border:1px solid #E2E8F0;box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+          👋 Hello! I'm your support assistant. Type <b>complaint</b> to register an issue, or ask me anything!
+        </span>
+      </div>
+    </div>
+  </div>
+  <div class="chat-input-area">
+    <input id="chatInput" type="text" placeholder="Type your message...">
+    <button class="chat-send-btn" onclick="clickSound.play(); const m=document.getElementById('chatInput').value.trim(); if(m){document.getElementById('chatInput').value=''; sendChat(m);}">
+      <i class="fa-solid fa-paper-plane"></i>
+    </button>
+  </div>
+</div>
+
+<button id="chatToggleBtn" onclick="clickSound.play(); toggleChatBot()">
+  <i class="fa-solid fa-comment-dots"></i>
 </button>
 
 </body>
