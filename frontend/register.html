@@ -153,6 +153,17 @@ body {
       </div>
     </div>
 
+    <div class="form-group">
+      <label class="form-label">Register As</label>
+      <div class="input-wrap">
+        <i class="fa-solid fa-user-shield input-icon"></i>
+        <select id="role" class="form-input" style="appearance:none; background: #FAFAFA;">
+          <option value="user">User</option>
+          <option value="admin">Admin</option>
+        </select>
+      </div>
+    </div>
+
     <button onclick="clickSound.play(); register()" class="btn-register">
       <i class="fa-solid fa-user-plus"></i> Create Account
     </button>
@@ -172,6 +183,7 @@ async function register() {
   const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value.trim();
   const confirmPassword = document.getElementById("confirmPassword").value.trim();
+  const role = document.getElementById("role").value;
 
   if (!name || !email || !password || !confirmPassword) {
     alert("All fields are required");
@@ -186,14 +198,16 @@ async function register() {
   const res = await fetch("http://localhost:5000/api/auth/register", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ name, email, password })
+    body: JSON.stringify({ name, email, password, role })
   });
 
   const data = await res.json();
 
   if (res.ok) {
-    alert("Registration successful. Please login.");
-    window.location.href = "login.html";
+    localStorage.setItem("token", data.token);
+    localStorage.setItem("role", data.role);
+    alert("Registration successful. Redirecting...");
+    window.location.href = data.role === "admin" ? "admin.html" : "user.html";
   } else {
     alert(data.message || "Registration failed");
   }

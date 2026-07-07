@@ -140,7 +140,7 @@ body {
 
 <div class="top-bar">
   <div class="brand">
-    <div class="brand-icon">CP</div>
+    <img class="brand-icon" src="logo.png" alt="ComplaintPortal logo">
     <span>ComplaintPortal</span>
   </div>
   <button onclick="clickSound.play(); window.history.back()" class="back-btn">
@@ -202,6 +202,14 @@ function getTimelineDotClass(stepStatus, currentStatus) {
   return "tl-dot-future";
 }
 
+function copyComplaintId(id) {
+  navigator.clipboard.writeText(id).then(() => {
+    alert(`Complaint ID ${id} copied to clipboard`);
+  }).catch(() => {
+    alert('Unable to copy Complaint ID');
+  });
+}
+
 function buildTimeline(status) {
   const steps = [
     { label: "Complaint Submitted", sub: "Your complaint has been registered.", done: true },
@@ -255,6 +263,13 @@ async function loadDetails() {
       </div>
       <div class="card-body">
         <div class="meta-grid">
+          <div class="meta-item">
+            <div class="meta-label">Complaint ID</div>
+            <div class="meta-value" style="gap:0.5rem;display:flex;flex-wrap:wrap;align-items:center;">
+              <span class="status-tag" style="background:rgba(212,160,23,0.12);color:#D4A017;border:1px solid rgba(212,160,23,0.25);padding:0.3rem 0.7rem;font-size:0.8rem;">${c.complaintId || 'N/A'}</span>
+              ${c.complaintId ? '<button onclick="copyComplaintId(\'' + c.complaintId + '\')" style="background:none;border:none;color:#0F3D2E;cursor:pointer;font-size:0.82rem;display:inline-flex;align-items:center;gap:0.3rem;"><i class="fa-solid fa-copy"></i> Copy</button>' : ''}
+            </div>
+          </div>
           <div class="meta-item">
             <div class="meta-label">Flat / Block</div>
             <div class="meta-value"><i class="fa-solid fa-building" style="color:#94A3B8;"></i> ${c.block}</div>

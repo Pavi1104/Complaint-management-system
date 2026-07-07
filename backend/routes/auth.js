@@ -21,7 +21,9 @@ const transporter = nodemailer.createTransport({
 /* ================= REGISTER ================= */
 router.post("/register", async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, role } = req.body;
+    const allowedRoles = ["user", "admin"];
+    const userRole = allowedRoles.includes(role) ? role : "user";
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
@@ -34,11 +36,22 @@ router.post("/register", async (req, res) => {
       name,
       email,
       password: hashedPassword,
-      role: "user"
+      role: userRole
     });
 
     await user.save();
-    res.status(201).json({ message: "User registered successfully" });
+
+    const token = jwt.sign(
+      { id: user._id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" }
+    );
+
+    res.status(201).json({
+      message: "User registered successfully",
+      token,
+      role: user.role
+    });
 
   } catch (error) {
     console.error(error);

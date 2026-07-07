@@ -225,7 +225,7 @@ body { background: #F0F4F8 !important; }
 <!-- TOP BAR -->
 <div class="dash-top-bar">
   <div class="dash-brand">
-    <div class="dash-brand-icon">CP</div>
+    <img class="dash-brand-icon" src="logo.png" alt="ComplaintPortal logo">
     <span>ComplaintPortal</span>
   </div>
   <div class="dash-actions">
@@ -378,16 +378,34 @@ const successSound = new Audio("sounds/success.mp3");
 const token = localStorage.getItem("token");
 if (!token) window.location.href = "login.html";
 
+function parseJwt(token) {
+  try {
+    return JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+  } catch {
+    return null;
+  }
+}
+
+const tokenPayload = parseJwt(token);
+const currentUserId = tokenPayload?.id || tokenPayload?._id || null;
+
 let allUserComplaints = [];
 
 const socket = io("http://localhost:5000");
 socket.on("complaintUpdated", loadComplaints);
+socket.on("complaintResolved", data => {
+  if (data.userId && currentUserId && data.userId === currentUserId) {
+    showToast("Your complaint has been resolved. Please provide your feedback.");
+    successSound.play();
+    loadComplaints();
+  }
+});
 
 function updateKPIs(complaints) {
   document.getElementById("kpiTotal").textContent = complaints.length;
-  document.getElementById("kpiPending").textContent = complaints.filter(c => c.status === "Pending").length;
-  document.getElementById("kpiProgress").textContent = complaints.filter(c => c.status === "In Progress" || c.status === "Reopened").length;
   document.getElementById("kpiResolved").textContent = complaints.filter(c => c.status === "Resolved").length;
+  document.getElementById("kpiPending").textContent = complaints.filter(c => c.status !== "Resolved").length;
+  document.getElementById("kpiProgress").textContent = complaints.filter(c => c.status === "In Progress" || c.status === "Reopened").length;
 }
 
 function getCategoryIcon(cat) {
@@ -408,20 +426,26 @@ function createComplaintListItem(c, includeActions = true) {
   const feedbackHtml = c.status === "Resolved" && c.feedback
     ? `<div class="feedback-text"><i class="fa-solid fa-star" style="color:#D4A017;"></i> ${c.feedback.rating}/5 — ${c.feedback.comment || "No comment"}</div>` : "";
 
+  const copyButton = c.complaintId ? `<button onclick="copyComplaintId('${c.complaintId}')" class="ci-btn ci-btn-purple" style="background:rgba(212,160,23,0.12);color:#1a1a1a;border:1px solid rgba(212,160,23,0.25);"><i class="fa-solid fa-copy mr-1"></i>Copy ID</button>` : "";
   const actionHtml = includeActions ? `
     <div class="ci-actions">
       <button onclick="clickSound.play(); window.location.href='complaint-details.html?id=${c._id}'" class="ci-btn ci-btn-blue"><i class="fa-solid fa-eye mr-1"></i>Details</button>
       <button onclick="clickSound.play(); editComplaint('${c._id}')" class="ci-btn ci-btn-green"><i class="fa-solid fa-pen mr-1"></i>Edit</button>
       ${c.status === "Resolved" && !c.feedback ? `<button onclick="clickSound.play(); openFeedback('${c._id}')" class="ci-btn ci-btn-purple"><i class="fa-solid fa-star mr-1"></i>Rate</button>` : ""}
       ${c.status === "Resolved" ? `<button onclick="clickSound.play(); reopenComplaint('${c._id}')" class="ci-btn ci-btn-red"><i class="fa-solid fa-rotate-left mr-1"></i>Reopen</button>` : ""}
+      ${copyButton}
     </div>` : `
     <div class="ci-actions">
       <button onclick="clickSound.play(); window.location.href='complaint-details.html?id=${c._id}'" class="ci-btn ci-btn-blue"><i class="fa-solid fa-eye mr-1"></i>Details</button>
+      ${copyButton}
     </div>`;
 
   li.innerHTML = `
     <div class="ci-top">
-      <div class="ci-title">${c.title}</div>
+      <div>
+        <div class="ci-title">${c.title}</div>
+        ${c.complaintId ? `<div style="font-size:0.78rem;color:#64748B;margin-top:0.35rem;">Complaint ID: <strong style="color:#0F3D2E;">${c.complaintId}</strong></div>` : ""}
+      </div>
       <div class="ci-time">${formatTime(c.createdAt)}</div>
     </div>
     <div class="ci-cat">${getCategoryIcon(c.category)} ${c.category} &nbsp;·&nbsp; <span class="status-tag ${getStatusClass(c.status)}">${c.status}</span>
@@ -564,24 +588,57 @@ let currentComplaintId = null;
 function openFeedback(id) {
   currentComplaintId = id;
   document.getElementById("feedbackModal").classList.add("show");
+  document.querySelectorAll("#stars .star").forEach(s => s.classList.remove("active"));
+  document.getElementById("feedbackComment").value = "";
 }
 
-function submitFeedback() {
-  const stars = document.querySelectorAll(".star.active").length;
-  const comment = document.getElementById("feedbackComment").value;
+function setFeedbackModalThankYou() {
+  const modalCard = document.querySelector("#feedbackModal .modal-card");
+  if (!modalCard) return;
+  modalCard.innerHTML = `
+    <div class="modal-title">Thank You!</div>
+    <div class="modal-sub">Your feedback has been submitted successfully.</div>
+    <div style="margin:1.5rem 0;text-align:center;">
+      <i class="fa-solid fa-circle-check" style="font-size:3rem;color:#16A34A;"></i>
+    </div>
+    <button onclick="document.getElementById('feedbackModal').classList.remove('show')" class="btn-submit-feedback">
+      Close
+    </button>
+  `;
+}
 
-  fetch(`http://localhost:5000/api/complaints/feedback/${currentComplaintId}`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: "Bearer " + token
-    },
-    body: JSON.stringify({ rating: stars, comment })
-  }).then(() => {
+async function submitFeedback() {
+  const stars = document.querySelectorAll("#stars .star.active").length;
+  const comment = document.getElementById("feedbackComment").value.trim();
+
+  if (!stars) {
+    showToast("Please select a rating before submitting.");
+    return;
+  }
+
+  try {
+    const res = await fetch(`http://localhost:5000/api/complaints/feedback/${currentComplaintId}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token
+      },
+      body: JSON.stringify({ rating: stars, comment })
+    });
+
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({}));
+      showToast(error.message || "Unable to submit feedback.");
+      return;
+    }
+
+    successSound.play();
     showToast("Feedback submitted!");
-    document.getElementById("feedbackModal").classList.remove("show");
+    setFeedbackModalThankYou();
     loadComplaints();
-  });
+  } catch (error) {
+    showToast("Network error: " + error.message);
+  }
 }
 
 function showToast(msg) {
@@ -602,6 +659,14 @@ function formatTime(dateString) {
 function logout() {
   localStorage.clear();
   window.location.href = "login.html";
+}
+
+function copyComplaintId(id) {
+  navigator.clipboard.writeText(id).then(() => {
+    showToast(`Complaint ID ${id} copied`);
+  }).catch(() => {
+    showToast("Unable to copy Complaint ID");
+  });
 }
 
 loadComplaints();

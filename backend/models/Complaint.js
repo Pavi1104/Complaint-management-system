@@ -1,9 +1,15 @@
 const mongoose = require("mongoose");
 
 const complaintSchema = new mongoose.Schema({
-  block:String,
-residentName:String,
-phone:String,
+  complaintId: {
+    type: String,
+    required: true,
+    unique: true,
+    index: true
+  },
+  block: String,
+  residentName: String,
+  phone: String,
   title: {
     type: String,
     required: true
@@ -25,10 +31,25 @@ phone:String,
     default: "Pending" // Pending, In Progress, Resolved
   },
   feedback: {
-  rating: Number,
-  comment: String,
-  submittedAt: Date
-},
+    rating: Number,
+    comment: String,
+    submittedAt: Date,
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User"
+    }
+  },
+  feedbacks: [
+    {
+      rating: Number,
+      comment: String,
+      submittedAt: Date,
+      userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User"
+      }
+    }
+  ],
   image: {
     type: String, // Path to the uploaded image
     default: null

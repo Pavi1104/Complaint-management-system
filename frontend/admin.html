@@ -174,7 +174,7 @@ body { background: #F0F4F8 !important; font-family: 'Inter', sans-serif; }
 
 <div class="admin-topbar">
   <div class="brand">
-    <div class="brand-icon">CP</div>
+    <img class="brand-icon" src="logo.png" alt="ComplaintPortal logo">
     <span>ComplaintPortal</span>
   </div>
   <div class="topbar-actions">
@@ -211,7 +211,7 @@ body { background: #F0F4F8 !important; font-family: 'Inter', sans-serif; }
   <div class="controls-bar">
     <div class="search-wrap">
       <i class="fa-solid fa-magnifying-glass search-icon"></i>
-      <input id="searchBox" onkeyup="renderComplaints()" placeholder="Search by title, resident, category...">
+      <input id="searchBox" onkeyup="renderComplaints()" placeholder="Search by ID, title, resident, category...">
     </div>
     <input type="hidden" id="statusFilter" value="">
     <div id="statusSummary"></div>
@@ -306,11 +306,13 @@ function renderComplaints() {
     const residentName = (c.residentName || "").toString().toLowerCase();
     const block = (c.block || "").toString().toLowerCase();
     const phone = (c.phone || "").toString().toLowerCase();
+    const complaintId = (c.complaintId || "").toString().toLowerCase();
 
     const matchesSearch = !searchText ||
       title.includes(searchText) || description.includes(searchText) ||
       category.includes(searchText) || residentName.includes(searchText) ||
-      block.includes(searchText) || phone.includes(searchText);
+      block.includes(searchText) || phone.includes(searchText) ||
+      complaintId.includes(searchText);
 
     const matchesStatus = !statusFilter || c.status === statusFilter;
     return matchesSearch && matchesStatus;
@@ -330,6 +332,16 @@ function renderComplaints() {
     const m = {Electrical:'⚡',Plumbing:'🚿',Lift:'🛗',Cleaning:'🧹',Security:'🚓'};
     return m[cat] || '📋';
   };
+  const makeStarIcons = rating => Array.from({ length: 5 }, (_, i) => `<i class="fa-solid fa-star" style="color:${i < rating ? '#D4A017' : '#CBD5E1'};"></i>`).join('');
+  const feedbackBadge = rating => {
+    if (rating <= 2) {
+      return '<span class="status-tag" style="background:rgba(220,38,38,0.12);color:#DC2626;border:1px solid rgba(220,38,38,0.25);">Needs Attention</span>';
+    }
+    if (rating === 3) {
+      return '<span class="status-tag" style="background:rgba(245,158,11,0.12);color:#B45309;border:1px solid rgba(245,158,11,0.3);">Average</span>';
+    }
+    return '<span class="status-tag" style="background:rgba(22,163,74,0.12);color:#15803D;border:1px solid rgba(22,163,74,0.25);">Satisfied</span>';
+  };
 
   filtered.forEach(c => {
     const div = document.createElement("div");
@@ -338,11 +350,27 @@ function renderComplaints() {
     const imgHtml = c.image
       ? `<div style="margin:0.5rem 0;"><img src="http://localhost:5000/uploads/${c.image}" alt="Complaint Image" style="max-width:100%;height:180px;object-fit:cover;border-radius:10px;border:1px solid #E2E8F0;cursor:pointer;" onclick="openImageModal('http://localhost:5000/uploads/${c.image}')"></div>` : "";
 
-    const feedbackHtml = c.feedback
-      ? `<div class="cc-feedback"><i class="fa-solid fa-star" style="color:#D4A017;"></i> ${c.feedback.rating}/5 &nbsp;·&nbsp; <i class="fa-solid fa-comment-dots" style="color:#64748B;"></i> ${c.feedback.comment || "No comment"}</div>` : "";
+    const currentFeedback = c.feedback && c.feedback.rating
+      ? c.feedback
+      : (Array.isArray(c.feedbacks) && c.feedbacks.length ? c.feedbacks[c.feedbacks.length - 1] : null);
+
+    const feedbackHtml = currentFeedback
+      ? `<div class="cc-feedback" style="display:grid;gap:0.5rem;">
+           <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+             <span style="display:flex;gap:0.1rem;">${makeStarIcons(currentFeedback.rating)}</span>
+             <strong style="color:#1E293B;">${currentFeedback.rating}/5</strong>
+             ${feedbackBadge(currentFeedback.rating)}
+           </div>
+           <div style="color:#1E293B;">${currentFeedback.comment ? currentFeedback.comment : '<span style="color:#64748B;">No comment provided</span>'}</div>
+           <div style="font-size:0.78rem;color:#64748B;">Submitted: ${formatTime(currentFeedback.submittedAt)}</div>
+         </div>`
+      : "";
 
     const resolveBtn = c.status !== "Resolved"
       ? `<button onclick="successSound.play(); resolveComplaint('${c._id}')" class="btn-resolve"><i class="fa-solid fa-check"></i> Mark Resolved</button>` : "";
+    const copyBtn = c.complaintId
+      ? `<button onclick="copyComplaintId('${c.complaintId}')" class="btn-resolve" style="background:#D4A017;color:#1a1a1a;"> <i class="fa-solid fa-copy"></i> Copy ID</button>`
+      : "";
 
     div.innerHTML = `
       <div class="cc-top">
@@ -353,6 +381,7 @@ function renderComplaints() {
         <div class="cc-badges">
           <span class="status-tag ${statusClass(c.status)}">${c.status}</span>
           <span class="priority-badge ${priorityClass(c.priority)}">${c.priority}</span>
+          ${c.complaintId ? `<span class="status-tag" style="background:rgba(212,160,23,0.12);color:#D4A017;border:1px solid rgba(212,160,23,0.25);">${c.complaintId}</span>` : ""}
         </div>
       </div>
       <div class="cc-meta">
@@ -365,7 +394,7 @@ function renderComplaints() {
       <div class="cc-desc"><i class="fa-solid fa-align-left" style="color:#94A3B8;margin-right:0.3rem;"></i>${c.description}</div>
       ${imgHtml}
       ${feedbackHtml}
-      <div class="cc-actions">${resolveBtn}</div>
+      <div class="cc-actions">${copyBtn}${resolveBtn}</div>
     `;
     container.appendChild(div);
   });
@@ -430,10 +459,28 @@ function logout() {
   window.location.href = "login.html";
 }
 
+function copyComplaintId(id) {
+  navigator.clipboard.writeText(id).then(() => {
+    showToast(`Complaint ID ${id} copied`);
+  }).catch(() => {
+    showToast("Unable to copy Complaint ID");
+  });
+}
+
 loadComplaints();
 
 const socket = io("http://localhost:5000");
 socket.on("complaintUpdated", loadComplaints);
+socket.on("feedbackSubmitted", data => {
+  showToast(`New feedback received for ${data.title} from ${data.residentName}`);
+  successSound.play();
+  loadComplaints();
+});
+socket.on("complaintReopened", data => {
+  showToast(`Complaint reopened: ${data.title}`);
+  successSound.play();
+  loadComplaints();
+});
 
 function formatTime(dateString) {
   const date = new Date(dateString);

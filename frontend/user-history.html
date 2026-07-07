@@ -139,7 +139,7 @@ tbody td { padding: 0.95rem 1.25rem; font-size: 0.85rem; color: #374151; vertica
 
 <div class="top-bar">
   <div class="brand">
-    <div class="brand-icon">CP</div>
+    <img class="brand-icon" src="logo.png" alt="ComplaintPortal logo">
     <span>ComplaintPortal</span>
   </div>
   <button onclick="clickSound.play(); window.location.href='user.html'" class="back-btn">
@@ -179,6 +179,7 @@ tbody td { padding: 0.95rem 1.25rem; font-size: 0.85rem; color: #374151; vertica
         <thead>
           <tr>
             <th>#</th>
+            <th>Complaint ID</th>
             <th>Title</th>
             <th>Category</th>
             <th>Status</th>
@@ -241,6 +242,10 @@ function createHistoryItem(c, index) {
 
   tr.innerHTML = `
     <td data-label="No" style="color:#94A3B8;font-weight:600;">${index + 1}</td>
+    <td data-label="Complaint ID" style="font-family:monospace;color:#0F3D2E;">
+      ${c.complaintId || '—'}
+      ${c.complaintId ? `<button onclick="copyComplaintId('${c.complaintId}')" class="detail-btn" style="margin-left:0.4rem;padding:0.25rem 0.5rem;font-size:0.72rem;">Copy</button>` : ''}
+    </td>
     <td data-label="Title" class="td-title">${c.title}</td>
     <td data-label="Category" class="td-category">${getCatIcon(c.category)} ${c.category}</td>
     <td data-label="Status"><span class="status-tag ${getStatusClass(c.status)}">${c.status}</span></td>
@@ -274,7 +279,7 @@ function renderHistoryComplaints() {
   if (historyItems.length === 0) {
     historyList.innerHTML = `
       <tr class="empty-row">
-        <td colspan="7">
+        <td colspan="8">
           <i class="fa-solid fa-inbox empty-icon"></i>
           No complaints found for this filter.
         </td>
@@ -293,6 +298,14 @@ async function loadHistory() {
   });
   allUserComplaints = await res.json();
   renderHistoryComplaints();
+}
+
+function copyComplaintId(id) {
+  navigator.clipboard.writeText(id).then(() => {
+    showToast(`Complaint ID ${id} copied`);
+  }).catch(() => {
+    showToast("Unable to copy Complaint ID");
+  });
 }
 
 function showToast(msg) {

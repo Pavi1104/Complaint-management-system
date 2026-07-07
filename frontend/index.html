@@ -26,6 +26,78 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+body.dark-mode {
+  --bg: #0f172a;
+  --text: #f8fafc;
+  --primary: #0ea5e9;
+  --primary-light: #38bdf8;
+  --secondary: #facc15;
+  background: #020617;
+  color: #f8fafc;
+}
+
+body.dark-mode .navbar {
+  background: rgba(15, 61, 46, 0.95);
+}
+
+body.dark-mode .nav-links a,
+body.dark-mode .btn-outline-white,
+body.dark-mode .btn-gold-solid,
+body.dark-mode .theme-btn {
+  color: #f8fafc;
+}
+
+body.dark-mode .theme-btn {
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.18);
+}
+
+body.dark-mode .hero {
+  background: linear-gradient(135deg, #0f172a 0%, #08233c 50%, #020617 100%);
+}
+
+body.dark-mode .hero h1,
+body.dark-mode .hero p,
+body.dark-mode .btn-hero-outline,
+body.dark-mode .hero-actions a {
+  color: #f8fafc;
+}
+
+body.dark-mode .feature-card,
+body.dark-mode .step-content,
+body.dark-mode .trust-card,
+body.dark-mode .contact-card,
+body.dark-mode .testimonial-card,
+body.dark-mode .footer,
+body.dark-mode .footer-grid,
+body.dark-mode .footer-col,
+body.dark-mode .footer-bottom {
+  background: #112132;
+  border-color: #1f2937;
+}
+
+body.dark-mode .section-title,
+body.dark-mode .section-subtitle,
+body.dark-mode .stat-item .num,
+body.dark-mode .stat-item p,
+body.dark-mode .feature-card h3,
+body.dark-mode .feature-card p,
+body.dark-mode .step-content h3,
+body.dark-mode .step-content p,
+body.dark-mode .trust-card h4,
+body.dark-mode .trust-card p,
+body.dark-mode .contact-card h4,
+body.dark-mode .contact-card p,
+body.dark-mode .testimonial-card blockquote,
+body.dark-mode .author-name,
+body.dark-mode .author-role,
+body.dark-mode .footer-brand .logo span,
+body.dark-mode .footer-col h5,
+body.dark-mode .footer-col ul li a,
+body.dark-mode .footer-bottom p {
+  color: #e2e8f0;
+}
+
 /* NAVBAR */
 .navbar {
   position: sticky; top: 0; z-index: 100;
@@ -42,6 +114,10 @@ body {
   width: 36px; height: 36px; background: var(--secondary);
   border-radius: 8px; display: flex; align-items: center; justify-content: center;
   font-size: 16px; color: #1a1a1a; font-weight: 800; flex-shrink: 0;
+}
+.nav-logo .logo-image {
+  width: 36px; height: 36px; border-radius: 12px;
+  object-fit: contain; flex-shrink: 0;
 }
 .nav-logo span { font-weight: 700; font-size: 1.05rem; letter-spacing: -0.01em; }
 .nav-logo small { display: block; font-size: 0.68rem; opacity: 0.6; font-weight: 400; letter-spacing: 0.05em; }
@@ -257,6 +333,7 @@ body {
 .footer-grid { max-width: 1140px; margin: 0 auto; display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: 3rem; margin-bottom: 3rem; }
 .footer-brand .logo { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem; }
 .footer-brand .logo .icon { width: 32px; height: 32px; background: var(--secondary); border-radius: 7px; display: flex; align-items: center; justify-content: center; color: #1a1a1a; font-weight: 800; font-size: 14px; }
+.footer-brand .logo .logo-image { width: 32px; height: 32px; border-radius: 7px; object-fit: contain; }
 .footer-brand .logo span { font-size: 0.95rem; font-weight: 700; color: #fff; }
 .footer-brand p { font-size: 0.83rem; color: rgba(255,255,255,0.45); line-height: 1.6; }
 .footer-col h5 { font-size: 0.82rem; font-weight: 700; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 1rem; }
@@ -316,9 +393,9 @@ body {
 <!-- ══════════════ NAVBAR ══════════════ -->
 <nav class="navbar">
   <a class="nav-logo" href="#">
-    <div class="logo-icon">CP</div>
+    <img class="logo-image" src="logo.png" alt="ComplaintPortal logo">
     <div>
-      <span>ComplaintPortal</span>
+      <span>Complaint Portal</span>
       <small>ENTERPRISE PLATFORM</small>
     </div>
   </a>
@@ -616,12 +693,14 @@ body {
   <div class="footer-grid">
     <div class="footer-brand">
       <div class="logo">
-        <div class="icon">CP</div>
-        <span>ComplaintPortal</span>
+        <img src="logo.png"
+     alt="Complaint Portal Logo"
+     style="width:50px; height:50px; object-fit:contain;">
+        <span>Complaint Portal</span>
       </div>
       <p>Enterprise-grade complaint management platform. Transparent, fast, and built for modern residential and commercial complexes.</p>
       <div class="social-links" style="margin-top:1rem;">
-        <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+        <a href="#" class="social-link"><i class="fab fa-x"></i></a>
         <a href="#" class="social-link"><i class="fab fa-linkedin-in"></i></a>
         <a href="#" class="social-link"><i class="fab fa-github"></i></a>
         <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
@@ -658,7 +737,7 @@ body {
   <div class="footer-bottom">
     <p>© 2026 ComplaintPortal. All rights reserved.</p>
     <div class="social-links">
-      <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+      <a href="#" class="social-link"><i class="fab fa-x"></i></a>
       <a href="#" class="social-link"><i class="fab fa-github"></i></a>
     </div>
   </div>
@@ -697,8 +776,27 @@ function toggleMenu(){
 }
 
 function toggleTheme(){
-  document.body.classList.toggle("dark-mode");
+  const body = document.body;
+  const icon = document.querySelector('.theme-btn i');
+  const isDark = body.classList.toggle("dark-mode");
+  if (icon) {
+    icon.classList.toggle('fa-moon', !isDark);
+    icon.classList.toggle('fa-sun', isDark);
+  }
+  localStorage.setItem('siteTheme', isDark ? 'dark' : 'light');
 }
+
+(function applySavedTheme(){
+  const saved = localStorage.getItem('siteTheme');
+  if (saved === 'dark') {
+    document.body.classList.add('dark-mode');
+    const icon = document.querySelector('.theme-btn i');
+    if (icon) {
+      icon.classList.remove('fa-moon');
+      icon.classList.add('fa-sun');
+    }
+  }
+})();
 
 function counter(id,target){
   let count=0;
