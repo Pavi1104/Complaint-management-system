@@ -25,6 +25,10 @@ app.use("/api/auth", authRoutes);
 app.use("/api/complaints", complaintRoutes);
 app.use("/api/chatbot", chatbotRouter);
 
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "../frontend/index.html"));
+});
+
 /* MongoDB */
 const mongoUrl = process.env.MONGO_URL || "mongodb+srv://pavithralakshmisasikumar_db_user:n8oa8tpG86AuNSJa@cluster0.t3u74fa.mongodb.net/complaint_db";
 mongoose.connect(mongoUrl)
