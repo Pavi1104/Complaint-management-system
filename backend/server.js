@@ -32,8 +32,8 @@ mongoose.connect(mongoUrl)
   .catch((err) => console.log(err));
 
 /* fallback: serve frontend index for unknown routes */
-app.get("/{*path}", (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/index.html'));
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../frontend/index.html"));
 });
 
 /* SOCKET.IO SETUP */
