@@ -18,7 +18,11 @@ app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 /* serve frontend static files */
-app.use(express.static(path.join(__dirname, '../frontend')));
+const frontendPath = path.resolve(__dirname, "../frontend");
+
+console.log("Frontend path:", frontendPath);
+
+app.use(express.static(frontendPath));
 
 /* routes */
 app.use("/api/auth", authRoutes);
@@ -26,7 +30,7 @@ app.use("/api/complaints", complaintRoutes);
 app.use("/api/chatbot", chatbotRouter);
 
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "../frontend/index.html"));
+  res.sendFile(path.join(frontendPath, "index.html"));
 });
 
 /* MongoDB */
