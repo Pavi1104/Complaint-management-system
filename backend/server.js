@@ -18,7 +18,7 @@ app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 /* serve frontend static files */
-const frontendPath = path.resolve(__dirname, "../frontend");
+const frontendPath = path.join(__dirname, "frontend");
 
 console.log("Frontend path:", frontendPath);
 
